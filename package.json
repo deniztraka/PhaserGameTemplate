@@ -14,12 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deniztraka/TestRepo.git"
+    "url": "git+https://github.com/deniztraka/PhaserGameTemplate.git"
   },
   "author": "deniztraka",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/deniztraka/TestRepo/issues"
+    "url": "https://github.com/deniztraka/PhaserGameTemplate/issues"
   },
-  "homepage": "https://github.com/deniztraka/TestRepo#readme"
+  "homepage": "https://github.com/deniztraka/PhaserGameTemplate#readme"
 }
