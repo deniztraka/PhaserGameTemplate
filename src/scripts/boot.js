@@ -44,7 +44,7 @@ DGame.Boot.prototype = {
     },
 
     gameResized: function (width, height) {
-        console.log("hede");
+        
         //  This could be handy if you need to do any extra processing if the game resizes.
         //  A resize could happen if for example swapping orientation on a device or resizing the browser window.
         //  Note that this callback is only really useful if you use a ScaleMode of RESIZE and place it inside your main game state.
