@@ -1,0 +1,25 @@
+{
+  "name": "workhard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "express": "^4.14.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deniztraka/TestRepo.git"
+  },
+  "author": "deniztraka",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deniztraka/TestRepo/issues"
+  },
+  "homepage": "https://github.com/deniztraka/TestRepo#readme"
+}
