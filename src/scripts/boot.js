@@ -1,6 +1,4 @@
-DGame = {
-
-    /* Your game can check BasicGame.orientated in internal loops to know if it should pause or not */
+DGame = {    
     orientated: false
 
 };
