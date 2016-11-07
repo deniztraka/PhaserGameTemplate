@@ -43,7 +43,7 @@ module.exports = function (grunt) {
         },
         watch: {
             files: ['<%= jshint.files %>'],
-            tasks: ['jshint', 'qunit']
+            tasks: ['jshint', /*'qunit'*/]
         },
         copy: {
             main: {
@@ -66,6 +66,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.registerTask('test', ['jshint'/*, 'qunit'*/]);
+    grunt.registerTask('watchx', ['watch'/*, 'qunit'*/]);
 
     grunt.registerTask('default', ['jshint', /*'qunit',*/ 'concat', 'uglify','copy']);
 };

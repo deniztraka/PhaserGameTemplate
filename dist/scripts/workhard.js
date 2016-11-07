@@ -69,7 +69,7 @@ DGame.Boot.prototype = {
 ;
 DGame.Game = function (game) {
 
-	//	When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
+    //	When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
     //this.game;		//	a reference to the currently running game
     //this.add;		//	used to add sprites, text, groups, etc
@@ -92,29 +92,84 @@ DGame.Game = function (game) {
 
 };
 
+var cursors = null;
+
 DGame.Game.prototype = {
 
-	create: function () {
+    create: function () {
+        
+        //  Create some map data dynamically
+        //  Map size is 128x128 tiles
+        var data = '';
 
-		//	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+        for (var y = 0; y < 8; y++) {
+            for (var x = 0; x < 8; x++) {
+                data += this.rnd.between(0, 20).toString();
 
-	},
+                if (x < 7) {
+                    data += ',';
+                }
+            }
 
-	update: function () {
+            if (y < 7) {
+                data += "\n";
+            }
+        }
 
-		//	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+        // console.log(data);
 
-	},
+        //  Add data to the cache
+        this.cache.addTilemap('dynamicMap', null, data, Phaser.Tilemap.CSV);
 
-	quitGame: function (pointer) {
+        //  Create our map (the 16x16 is the tile size)
+        map = this.game.add.tilemap('dynamicMap', 16, 16);
 
-		//	Here you should destroy anything you no longer need.
-		//	Stop music, delete sprites, purge caches, free resources, all that good stuff.
+        //  'tiles' = cache image key, 16x16 = tile size
+        map.addTilesetImage('tiles', 'tiles', 16, 16);
 
-		//	Then let's go back to the main menu.
-		this.state.start('MainMenu');
+        //  0 is important
+        var layer = map.createLayer(0);
 
-	}
+        //  Scroll it
+        layer.resizeWorld();
+
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+    },
+
+    update: function () {
+        if (cursors.left.isDown)
+        {
+            this.camera.x--;
+        }
+        else if (cursors.right.isDown)
+        {
+            this.camera.x++;
+        }
+
+        if (cursors.up.isDown)
+        {
+            this.camera.y--;
+        }
+        else if (cursors.down.isDown)
+        {
+            this.camera.y++;
+        }
+        //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+
+    },
+
+    quitGame: function (pointer) {
+
+        //	Here you should destroy anything you no longer need.
+        //	Stop music, delete sprites, purge caches, free resources, all that good stuff.
+
+        //	Then let's go back to the main menu.
+        this.state.start('MainMenu');
+
+    }
 
 };
 ;/**
@@ -103238,6 +103293,8 @@ DGame.Preloader.prototype = {
 	preload: function () {
 		this.preloadBar = this.add.sprite(300, 400, 'preloaderBar');
 		this.load.setPreloadSprite(this.preloadBar);
+
+		this.load.image('tiles','assets/img/tiles/sci-fi-tiles.png');
 	},
 	create: function () {
 		this.preloadBar.cropEnabled = false;
