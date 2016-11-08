@@ -1,5 +1,5 @@
 
-DGame.Game = function (game) {
+DGame.Game = function(game) {
 
     //	When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
@@ -24,31 +24,19 @@ DGame.Game = function (game) {
 
 };
 
+var map = null;
+var layer = null;
 var cursors = null;
+var player = null;
 
 DGame.Game.prototype = {
 
-    create: function () {
-        
-        //  Create some map data dynamically
-        //  Map size is 128x128 tiles
-        var data = '';
+    create: function() {
 
-        for (var y = 0; y < 8; y++) {
-            for (var x = 0; x < 8; x++) {
-                data += this.rnd.between(0, 20).toString();
+        //  Create some map data dynamically        
+        var data = this.createMap();
 
-                if (x < 7) {
-                    data += ',';
-                }
-            }
-
-            if (y < 7) {
-                data += "\n";
-            }
-        }
-
-        // console.log(data);
+        //console.log(data);
 
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, data, Phaser.Tilemap.CSV);
@@ -59,48 +47,119 @@ DGame.Game.prototype = {
         //  'tiles' = cache image key, 16x16 = tile size
         map.addTilesetImage('tiles', 'tiles', 16, 16);
 
-        //  0 is important
-        var layer = map.createLayer(0);
+        //  Create our layer
+        layer = map.createLayer(0);
 
         //  Scroll it
         layer.resizeWorld();
 
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        
+
+        layer.debug = true;
+
+        this.physics.startSystem(Phaser.Physics.ARCADE);
+
+        //  Player
+        player = this.game.add.sprite(48, 48, 'player', 1);
+        player.animations.add('left', [8, 9], 10, true);
+        player.animations.add('right', [1, 2], 10, true);
+        player.animations.add('up', [11, 12, 13], 10, true);
+        player.animations.add('down', [4, 5, 6], 10, true);
+
+        
+        
+
+        this.physics.enable(player, Phaser.Physics.ARCADE);
+        player.body.setSize(10, 14, 2, 1);
+        
+        this.camera.follow(player);
 
         cursors = this.input.keyboard.createCursorKeys();
-
+        
+        //  This isn't totally accurate, but it'll do for now
+        map.setCollision([40,41,42,43,44,45,50,47]);
     },
 
-    update: function () {
-        if (cursors.left.isDown)
-        {
-            this.camera.x--;
-        }
-        else if (cursors.right.isDown)
-        {
-            this.camera.x++;
-        }
+    update: function() {
+        this.physics.arcade.collide(player, layer);
 
-        if (cursors.up.isDown)
-        {
-            this.camera.y--;
+        player.body.velocity.set(0);
+
+        if (cursors.left.isDown) {
+            player.body.velocity.x = -100;
+            player.play('left');
         }
-        else if (cursors.down.isDown)
-        {
-            this.camera.y++;
+        else if (cursors.right.isDown) {
+            player.body.velocity.x = 100;
+            player.play('right');
+        }
+        else if (cursors.up.isDown) {
+            player.body.velocity.y = -100;
+            player.play('up');
+        }
+        else if (cursors.down.isDown) {
+            player.body.velocity.y = 100;
+            player.play('down');
+        }
+        else {
+            player.animations.stop();
         }
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
     },
 
-    quitGame: function (pointer) {
+    createMap: function() {
+        //  Map size is 32x32 tiles
+        var sizeX = 64;
+        var sizeY = 32;
+        var data = '';
+        var floorTiles = [28, 29, 30, 31, 32, 33, 34, 35, 36, 37];
+        var nwTile = 40;
+        var neTile = 41;
+        var seTile = 43;
+        var swTile = 42;
+        var leftWallTile = 50;
+        var rightWallTile = 47;
+        var bottomWallTile = 45;
+        var topWallTile = 44;
 
-        //	Here you should destroy anything you no longer need.
-        //	Stop music, delete sprites, purge caches, free resources, all that good stuff.
 
-        //	Then let's go back to the main menu.
-        this.state.start('MainMenu');
 
+        for (var y = 0; y < sizeY; y++) {
+            for (var x = 0; x < sizeX; x++) {
+                if (x == 0 && y == 0) {
+                    data += nwTile;
+                } else if (x == sizeX - 1 && y == 0) {
+                    data += neTile;
+                } else if (x == 0 && y == sizeY - 1) {
+                    data += swTile;
+                } else if (x == sizeX - 1 && y == sizeY - 1) {
+                    data += seTile;
+                } else if (x == 0) {
+                    data += leftWallTile;
+                } else if (x == sizeX - 1) {
+                    data += rightWallTile;
+                } else if (y == sizeY - 1) {
+                    data += bottomWallTile;
+                } else if (y == 0) {
+                    data += topWallTile;
+                } else {
+                    data += floorTiles[this.rnd.integerInRange(0, floorTiles.length - 1)];
+                }
+
+                if (x < sizeX - 1) {
+                    data += ',';
+                }
+            }
+
+            if (y < sizeY - 1) {
+                data += "\n";
+            }
+        }
+        return data;
+    },
+    render(){
+        this.game.debug.body(player);
     }
 
 };
