@@ -1,6 +1,4 @@
-
-DGame.Game = function(game) {
-
+DGame.Game = function (game) {
     //	When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
     //this.game;		//	a reference to the currently running game
@@ -21,7 +19,6 @@ DGame.Game = function(game) {
 
     //	You can use any of these from any function within this State.
     //	But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
-
 };
 
 var map = null;
@@ -31,12 +28,12 @@ var player = null;
 
 DGame.Game.prototype = {
 
-    create: function() {
+    create: function () {
 
         //  Create some map data dynamically        
         var data = this.createMap();
 
-        //console.log(data);
+        console.log(data);
 
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, data, Phaser.Tilemap.CSV);
@@ -53,7 +50,7 @@ DGame.Game.prototype = {
         //  Scroll it
         layer.resizeWorld();
 
-        
+
 
         layer.debug = true;
 
@@ -66,21 +63,21 @@ DGame.Game.prototype = {
         player.animations.add('up', [11, 12, 13], 10, true);
         player.animations.add('down', [4, 5, 6], 10, true);
 
-        
-        
+
+
 
         this.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.setSize(10, 14, 2, 1);
-        
+
         this.camera.follow(player);
 
         cursors = this.input.keyboard.createCursorKeys();
-        
+
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([40,41,42,43,44,45,50,47]);
+        map.setCollision([1]);
     },
 
-    update: function() {
+    update: function () {
         this.physics.arcade.collide(player, layer);
 
         player.body.velocity.set(0);
@@ -88,77 +85,60 @@ DGame.Game.prototype = {
         if (cursors.left.isDown) {
             player.body.velocity.x = -100;
             player.play('left');
-        }
-        else if (cursors.right.isDown) {
+        } else if (cursors.right.isDown) {
             player.body.velocity.x = 100;
             player.play('right');
-        }
-        else if (cursors.up.isDown) {
+        } else if (cursors.up.isDown) {
             player.body.velocity.y = -100;
             player.play('up');
-        }
-        else if (cursors.down.isDown) {
+        } else if (cursors.down.isDown) {
             player.body.velocity.y = 100;
             player.play('down');
-        }
-        else {
+        } else {
             player.animations.stop();
         }
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
     },
 
-    createMap: function() {
+    createMap: function () {
         //  Map size is 32x32 tiles
         var sizeX = 64;
         var sizeY = 32;
-        var data = '';
-        var floorTiles = [28, 29, 30, 31, 32, 33, 34, 35, 36, 37];
-        var nwTile = 40;
-        var neTile = 41;
-        var seTile = 43;
-        var swTile = 42;
-        var leftWallTile = 50;
-        var rightWallTile = 47;
-        var bottomWallTile = 45;
-        var topWallTile = 44;
+        var csvData = '';
+        var mapData = [];
 
+        var chanceToStartAlive = 0.45;
 
-
-        for (var y = 0; y < sizeY; y++) {
-            for (var x = 0; x < sizeX; x++) {
-                if (x == 0 && y == 0) {
-                    data += nwTile;
-                } else if (x == sizeX - 1 && y == 0) {
-                    data += neTile;
-                } else if (x == 0 && y == sizeY - 1) {
-                    data += swTile;
-                } else if (x == sizeX - 1 && y == sizeY - 1) {
-                    data += seTile;
-                } else if (x == 0) {
-                    data += leftWallTile;
-                } else if (x == sizeX - 1) {
-                    data += rightWallTile;
-                } else if (y == sizeY - 1) {
-                    data += bottomWallTile;
-                } else if (y == 0) {
-                    data += topWallTile;
-                } else {
-                    data += floorTiles[this.rnd.integerInRange(0, floorTiles.length - 1)];
+        for (var x = 0; x < sizeX; x++) {
+            for (var y = 0; y < sizeY; y++) {
+                if (typeof mapData[x] == 'undefined') {
+                    mapData[x] = [];
                 }
 
-                if (x < sizeX - 1) {
-                    data += ',';
+                mapData[x][y] = this.rnd.frac() < chanceToStartAlive ? 1 : 0;
+                //console.log(mapData[x][y]);
+            }
+        }
+
+        //convert to csv
+        for (var y = 0; y < sizeY; y++) {
+            for (var x = 0; x < sizeX; x++) {
+
+                csvData += mapData[x][y];
+                if (x < sizeX - 1) {    
+                
+                    csvData += ',';
                 }
             }
 
             if (y < sizeY - 1) {
-                data += "\n";
+                csvData += "\n";
             }
         }
-        return data;
+        return csvData;
     },
-    render(){
+    render() {
         this.game.debug.body(player);
     }
 
