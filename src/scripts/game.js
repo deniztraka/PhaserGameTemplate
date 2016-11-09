@@ -31,14 +31,15 @@ DGame.Game.prototype = {
     create: function () {
         
         MapHandler.Init({
-            width:128,
-            height:96,
+            width:64,
+            height:48,
             chanceToStartAlive: 0.4,
             birthLimit: 4,
             deathLimit: 3,
-            numberOfSteps:2,
-        });        
-        var csvData = MapHandler.GetAsCsvData();
+            numberOfSteps:3,
+        });
+        var world = MapHandler.GenerateMap();      
+        var csvData = MapHandler.GetAsCsvData(world);
 
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
