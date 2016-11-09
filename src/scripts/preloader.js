@@ -11,7 +11,7 @@ DGame.Preloader.prototype = {
 		this.preloadBar = this.add.sprite(300, 400, 'preloaderBar');
 		this.load.setPreloadSprite(this.preloadBar);
 
-		this.load.image('tiles','assets/img/tiles/sci-fi-tiles.png');
+		this.load.image('tiles','assets/img/tiles/forest.png');
 		this.load.spritesheet('player', 'assets/img/spritesheets/spaceman.png', 16, 16);
 	},
 	create: function () {

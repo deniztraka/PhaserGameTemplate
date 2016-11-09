@@ -32,7 +32,7 @@ DGame.Game.prototype = {
         
         MapHandler.Init({
             width:64,
-            height:48,
+            height:40,
             chanceToStartAlive: 0.4,
             birthLimit: 4,
             deathLimit: 3,
@@ -78,9 +78,9 @@ DGame.Game.prototype = {
         this.camera.follow(player);
 
         cursors = this.input.keyboard.createCursorKeys();
-
+            
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([1]);
+        map.setCollision([11,16,6,7,8,9,14,19,24,23,22,21,20,15,10,5,12,13,17,18]);
     },
 
     update: function () {
@@ -107,7 +107,7 @@ DGame.Game.prototype = {
 
     },
     render:function() {
-        this.game.debug.body(player);
+        //this.game.debug.body(player);
     }
 
 };
