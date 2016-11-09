@@ -29,14 +29,12 @@ var player = null;
 DGame.Game.prototype = {
 
     create: function () {
-
-        //  Create some map data dynamically        
-        var data = this.createMap();
-
-        console.log(data);
+        
+        MapHandler.Init({width:64,height:48});        
+        var csvData = MapHandler.GetAsCsvData();
 
         //  Add data to the cache
-        this.cache.addTilemap('dynamicMap', null, data, Phaser.Tilemap.CSV);
+        this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
 
         //  Create our map (the 16x16 is the tile size)
         map = this.game.add.tilemap('dynamicMap', 16, 16);
@@ -52,7 +50,7 @@ DGame.Game.prototype = {
 
 
 
-        layer.debug = true;
+        //layer.debug = true;
 
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -100,45 +98,7 @@ DGame.Game.prototype = {
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
     },
-
-    createMap: function () {
-        //  Map size is 32x32 tiles
-        var sizeX = 64;
-        var sizeY = 32;
-        var csvData = '';
-        var mapData = [];
-
-        var chanceToStartAlive = 0.45;
-
-        for (var x = 0; x < sizeX; x++) {
-            for (var y = 0; y < sizeY; y++) {
-                if (typeof mapData[x] == 'undefined') {
-                    mapData[x] = [];
-                }
-
-                mapData[x][y] = this.rnd.frac() < chanceToStartAlive ? 1 : 0;
-                //console.log(mapData[x][y]);
-            }
-        }
-
-        //convert to csv
-        for (var y = 0; y < sizeY; y++) {
-            for (var x = 0; x < sizeX; x++) {
-
-                csvData += mapData[x][y];
-                if (x < sizeX - 1) {    
-                
-                    csvData += ',';
-                }
-            }
-
-            if (y < sizeY - 1) {
-                csvData += "\n";
-            }
-        }
-        return csvData;
-    },
-    render() {
+    render:function() {
         this.game.debug.body(player);
     }
 
