@@ -33,6 +33,10 @@ var MapHandler = (function (my) {
         initOptions: function (options) {
             this.configurations.width = options.width;
             this.configurations.height = options.height;
+            this.configurations.chanceToStartAlive = options.chanceToStartAlive;
+            this.configurations.deathLimit = options.deathLimit;
+            this.configurations.birthLimit = options.birthLimit;
+            this.configurations.numberOfSteps = options.numberOfSteps;
         }
     };
 

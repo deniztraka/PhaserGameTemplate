@@ -30,7 +30,14 @@ DGame.Game.prototype = {
 
     create: function () {
         
-        MapHandler.Init({width:64,height:48});        
+        MapHandler.Init({
+            width:128,
+            height:96,
+            chanceToStartAlive: 0.4,
+            birthLimit: 4,
+            deathLimit: 3,
+            numberOfSteps:2,
+        });        
         var csvData = MapHandler.GetAsCsvData();
 
         //  Add data to the cache
