@@ -32,7 +32,9 @@ var MapHandler = (function (my) {
             closeCurveSE: 12,
             closeCurveSW: 13,
             closeCurveNE: 17,
-            closeCurveNW: 18
+            closeCurveNW: 18,
+            fillMapId: 1000,
+            floodFillId: 30
         },
         initOptions: function (options) {
             this.configurations.width = options.width;
@@ -48,7 +50,7 @@ var MapHandler = (function (my) {
         for (var x = 0; x < secureSelf.configurations.width; x++) {
             map[x] = [];
             for (var y = 0; y < secureSelf.configurations.height; y++) {
-                map[x][y] = 0;
+                map[x][y] = secureSelf.worldConfig.openCellId;
             }
         }
 
@@ -58,7 +60,7 @@ var MapHandler = (function (my) {
 
                     if (Math.random() < secureSelf.configurations.chanceToStartAlive) {
                         //We're using numbers, not booleans, to decide if something is solid here. 0 = not solid
-                        map[xx][yy] = secureSelf.worldConfig.closeCellId;
+                        map[xx][yy] = secureSelf.worldConfig.fillMapId;
                     }
                 }
             }
@@ -72,13 +74,13 @@ var MapHandler = (function (my) {
             for (var j = -1; j < 2; j++) {
                 var nb_x = i + x;
                 var nb_y = j + y;
-                if (i === 0 && j === 0) {}
+                if (i === 0 && j === 0) { }
                 //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
                 else if (nb_x < 0 || nb_y < 0 ||
                     nb_x >= map.length ||
                     nb_y >= map[0].length) {
                     count = count + 1;
-                } else if (map[nb_x][nb_y] === secureSelf.worldConfig.closeCellId) {
+                } else if (map[nb_x][nb_y] !== secureSelf.worldConfig.openCellId) {
                     count = count + 1;
                 }
             }
@@ -100,20 +102,20 @@ var MapHandler = (function (my) {
                 if (map[x][y] > 0) {
                     //See if it should die
                     if (nbs < secureSelf.configurations.deathLimit) {
-                        newmap[x][y] = 0;
+                        newmap[x][y] = secureSelf.worldConfig.openCellId;
                     }
                     //Otherwise keep it solid
                     else {
-                        newmap[x][y] = secureSelf.worldConfig.closeCellId;
+                        newmap[x][y] = secureSelf.worldConfig.fillMapId;
                     }
                 }
                 //If the tile is currently empty
                 else {
                     //See if it should become solid
                     if (nbs > secureSelf.configurations.birthLimit) {
-                        newmap[x][y] = secureSelf.worldConfig.closeCellId;
+                        newmap[x][y] = secureSelf.worldConfig.fillMapId;
                     } else {
-                        newmap[x][y] = 0;
+                        newmap[x][y] = secureSelf.worldConfig.openCellId;;
                     }
                 }
             }
@@ -138,42 +140,63 @@ var MapHandler = (function (my) {
 
         return world;
     };
+    var fillForest = function (map) {
+        map = randomizeForestInside(map);
+        map = normalizeEdges(map);        
+        //map = fixForestBugs(map);
+        return map;
+    }
 
-    var lastTouches = function (map) {
+    var fixForestBugs = function (map) {
+        // for (var x = 0; x < map.length; x++) {
+        //     for (var y = 0; y < map[0].length; y++) {
+        //         if (map[x - 1] && map[x + 1] && map[x][y] != secureSelf.worldConfig.openCellId &&
+        //             (
+        //                 (
+        //                     map[x][y + 1] == secureSelf.worldConfig.openCellId &&
+        //                     map[x][y - 1] == secureSelf.worldConfig.openCellId
+        //                 ) ||
+        //                 (
+        //                     map[x - 1][y] == secureSelf.worldConfig.openCellId &&
+        //                     map[x + 1][y] == secureSelf.worldConfig.openCellId
+
+        //                 )
+        //             )
+        //         ) {
+        //             map[x][y] = 31;
+        //             if (map[x][y - 1] == secureSelf.worldConfig.openCellId) {
+        //                 map[x][y - 1] = 26;
+        //             }
+        //         }
+        //     }
+        // }
+
+        // for (var x = 0; x < map.length; x++) {
+        //     for (var y = 0; y < map[0].length; y++) {
+        //         if (map[x][y] == 31) {
+        //             if (
+        //                 map[x][y + 1] == 31
+        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS0
+        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS1
+        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS2
+        //                 || map[x][y + 1] == secureSelf.worldConfig.closeSW
+        //                 || map[x][y + 1] == secureSelf.worldConfig.closeSE) {
+        //                 map[x][y] = secureSelf.worldConfig.openCellId;
+        //             }
+        //         }
+        //     }
+        // }
+
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
-                if (map[x - 1] && map[x + 1] && map[x][y] != secureSelf.worldConfig.openCellId &&
-                    (
-                        (
-                            map[x][y + 1] == secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] == secureSelf.worldConfig.openCellId
-                        ) ||
-                        (
-                            map[x - 1][y] == secureSelf.worldConfig.openCellId &&
-                            map[x + 1][y] == secureSelf.worldConfig.openCellId
+                if (x < 0 || y < 0 ||
+                    x >= map.length ||
+                    y >= map[0].length) {
 
-                        )
-                    )                   
-                ) {
-                    map[x][y] = 31;
-                    if (map[x][y - 1] == secureSelf.worldConfig.openCellId) {
-                        map[x][y - 1] = 26;
-                    }
-                }
-            }
-        }
-
-        for (var x = 0; x < map.length; x++) {
-            for (var y = 0; y < map[0].length; y++) {
-                if(map[x][y] == 31){
-                    if(
-                        map[x][y+1] == 31 
-                    || map[x][y+1] == secureSelf.worldConfig.closeS0
-                    || map[x][y+1] == secureSelf.worldConfig.closeS1
-                    || map[x][y+1] == secureSelf.worldConfig.closeS2
-                    || map[x][y+1] == secureSelf.worldConfig.closeSW
-                    || map[x][y+1] == secureSelf.worldConfig.closeSE){
-                        map[x][y] = secureSelf.worldConfig.openCellId;
+                    var aliveNeighbourCont = countAliveNeighbours(map, x, y);
+                    if (aliveNeighbourCont == 5) {
+                        debugger;
+                        //map[x][y] = 99;//secureSelf.worldConfig.openCellId;
                     }
                 }
             }
@@ -184,10 +207,11 @@ var MapHandler = (function (my) {
         return map;
     }
 
-    var randomizeCloseForest = function (map) {
+    var randomizeForestInside = function (map) {
         for (var y = 0; y < map[0].length; y++) {
             for (var x = 0; x < map.length; x++) {
-                if (map[x][y] == secureSelf.worldConfig.closeCellId) {
+                if (countAliveNeighbours(map, x, y) == 8) {
+                    debugger;
                     map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeCellId : secureSelf.worldConfig.closeCellIdX;
                 }
             }
@@ -195,192 +219,65 @@ var MapHandler = (function (my) {
         return map;
     };
 
-    var processEdges = function (map) {
-        for (var y = 0; y < map[0].length; y++) {
-            for (var x = 0; x < map.length; x++) {
-                if (map[x] && map[x][y] != secureSelf.worldConfig.openCellId) {
-                    //Check SE
-                    if (map[x + 1] && map[x]) {
-                        if (map[x + 1][y] == secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] == secureSelf.worldConfig.openCellId &&
-                            map[x - 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] != secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = secureSelf.worldConfig.closeSE;
-                        }
-                    }
+    var getSENeighbour = function (map, x, y) {
+        return map[x + 1][y + 1];
+    };
 
-                    //Check SW
-                    if (map[x - 1] && map[x]) {
-                        if (map[x - 1][y] == secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] == secureSelf.worldConfig.openCellId &&
-                            map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] != secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = secureSelf.worldConfig.closeSW;
-                        }
-                    }
+    var getSWNeighbour = function (map, x, y) {
+        return map[x - 1][y + 1];
+    };
 
-                    //Check S
-                    if (map[x - 1] && map[x + 1]) {
-                        if (map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] == secureSelf.worldConfig.openCellId &&
-                            map[x - 1][y] != secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = Utils.Random.Int(22, 24);
-                        }
-                    }
+    var getNENeighbour = function (map, x, y) {
+        return map[x + 1][y - 1];
+    };
 
-                    //Check NW
-                    if (map[x - 1] && map[x + 1]) {
-                        if (map[x - 1][y] == secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] != secureSelf.worldConfig.openCellId &&
-                            map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] == secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = secureSelf.worldConfig.closeNW;
-                        }
-                    }
+    var getNWNeighbour = function (map, x, y) {
+        return map[x - 1][y - 1];
+    };
 
-                    //Check W
-                    if (map[x - 1]) {
-                        if (map[x][y - 1] != secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] != secureSelf.worldConfig.openCellId &&
-                            map[x - 1][y] == secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
-                        }
-                    }
+    var getENeighbour = function (map, x, y) {
+        return map[x + 1][y];
+    };
 
-                    //Check N
-                    if (map[x - 1] && map[x + 1]) {
-                        if (map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] == secureSelf.worldConfig.openCellId &&
-                            map[x - 1][y] != secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = Utils.Random.Int(6, 9);
-                        }
-                    }
+    var getWNeighbour = function (map, x, y) {
+        return map[x - 1][y];
+    };
 
-                    //Check NE
-                    if (map[x - 1] && map[x + 1]) {
-                        if (map[x - 1][y] != secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] != secureSelf.worldConfig.openCellId &&
-                            map[x + 1][y] == secureSelf.worldConfig.openCellId &&
-                            map[x][y - 1] == secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = secureSelf.worldConfig.closeNE;
-                        }
-                    }
+    var getNNeighbour = function (map, x, y) {
+        return map[x][y - 1];
+    };
 
-                    //Check E
-                    if (map[x + 1]) {
-                        if (map[x][y - 1] != secureSelf.worldConfig.openCellId &&
-                            map[x][y + 1] != secureSelf.worldConfig.openCellId &&
-                            map[x + 1][y] == secureSelf.worldConfig.openCellId
-                        ) {
-                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
-                        }
-                    }
+    var getSNeighbour = function (map, x, y) {
+        return map[x][y + 1];
+    };
 
-                    //Check CurveSE
-                    if (map[x + 1] && map[x - 1] && map[x + 1][y + 1] == secureSelf.worldConfig.openCellId &&
-                        map[x - 1][y] != secureSelf.worldConfig.openCellId &&
-                        map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                        map[x][y - 1] != secureSelf.worldConfig.openCellId &&
-                        map[x][y + 1] != secureSelf.worldConfig.openCellId) {
-                        map[x][y] = secureSelf.worldConfig.closeCurveSE;
-                    }
+    var normalizeEdges = function (map) {
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    console.log("asd");
+                    map[x][y] == Math.random() > 0.5 ? secureSelf.worldConfig.closeCellId : secureSelf.worldConfig.closeCellIdX;
+                }
 
-                    //Check CurveSW
-                    if (map[x + 1] && map[x - 1] && map[x - 1][y + 1] == secureSelf.worldConfig.openCellId &&
-                        map[x - 1][y] != secureSelf.worldConfig.openCellId &&
-                        map[x + 1][y] != secureSelf.worldConfig.openCellId &&
-                        map[x][y - 1] != secureSelf.worldConfig.openCellId &&
-                        map[x][y + 1] != secureSelf.worldConfig.openCellId) {
-                        map[x][y] = secureSelf.worldConfig.closeCurveSW;
+
+                if (map[x] && map[x][y] == secureSelf.worldConfig.openCellId) {
+                    if (map[x + 1] && map[x - 1]) {
+
+
+
+                        // if (getNNeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
+                        //     getNENeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
+                        //     getNWNeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
+                        //     getSNeighbour(map,x,y) == secureSelf.worldConfig.openCellId
+                        // ) {
+                        //     map[x][y] = Utils.Random.Int(22, 24);
+                        // }                        
                     }
                 }
             }
         }
         return map;
     }
-
-    my.GenerateMap = function () {
-        var tryCount = 0;
-        var checkIsMapOkey = false;
-        while (!checkIsMapOkey) {
-
-            //And randomly scatter solid blocks
-            var map = initializeMap(true, [
-                []
-            ]);;
-
-            //Then, for a number of steps
-            for (var i = 0; i < secureSelf.configurations.numberOfSteps; i++) {
-                //We apply our simulation rules!
-                map = doSimulationStep(map);
-            }
-
-            //closing edges
-            for (var x = 0; x < map.length; x++) {
-                for (var y = 0; y < map[0].length; y++) {
-                    if (x == map.length - 1 || x == 0 || y == map[0].length - 1 || y == 0) {
-                        map[x][y] = secureSelf.worldConfig.closeCellId;
-                    }
-                }
-            }
-
-            //random map is generated
-            //now trying to shutdown closed areas            
-            var openCellFound = false;
-            while (!openCellFound) {
-                var closedCellCount = 0;
-                var randomX = Utils.Random.Int(0, map.length);
-                var randomY = Utils.Random.Int(0, map[0].length);
-                if (map[randomX][randomY] == 0) {
-                    openCellFound = true; //we found an open cell
-
-                    floodFill(map, randomX, randomY, 0, 20);
-                    //set wall other open areas
-                    for (var x = 0; x < map.length; x++) {
-                        for (var y = 0; y < map[0].length; y++) {
-                            if (map[x][y] == 0) {
-                                map[x][y] = secureSelf.worldConfig.closeCellId;
-                            }
-                        }
-                    }
-
-                    //set open flooded areas
-                    for (var x = 0; x < map.length; x++) {
-                        for (var y = 0; y < map[0].length; y++) {
-                            if (map[x][y] == 20) {
-                                map[x][y] = 0;
-                            } else {
-                                closedCellCount++;
-                            }
-                        }
-                    }
-
-                    var closedRate = closedCellCount / (map.length * map[0].length);
-                    if (closedRate < 0.5) {
-                        checkIsMapOkey = true;
-                    }
-                }
-            }
-
-            tryCount++;
-        }
-        mapData = map;
-        logMap();
-        debugger;
-        mapData = processEdges(map);
-        mapData = randomizeCloseForest(map);
-        mapData = lastTouches(map);
-        logMap();
-        //And we're done!
-        return mapData;
-    };
 
     var logMap = function () {
         var logString = "";
@@ -431,8 +328,101 @@ var MapHandler = (function (my) {
         }
     }
 
+    var buildRandomWorld = function (map) {
+        //And randomly scatter solid blocks
+        map = initializeMap(true, map);;
+
+        //Then, for a number of steps
+        for (var i = 0; i < secureSelf.configurations.numberOfSteps; i++) {
+            //We apply our simulation rules!
+            map = doSimulationStep(map);
+        }
+
+        //closing edges
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (x == map.length - 1 || x == 0 || y == map[0].length - 1 || y == 0) {
+                    map[x][y] = secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //random map is generated
+        //now trying to shutdown closed areas            
+        var openCellFound = false;
+        while (!openCellFound) {
+            var closedCellCount = 0;
+            var randomX = Utils.Random.Int(0, map.length);
+            var randomY = Utils.Random.Int(0, map[0].length);
+            if (map[randomX][randomY] == secureSelf.worldConfig.openCellId) {
+                openCellFound = true; //we found an open cell
+
+                floodFill(map, randomX, randomY, 0, secureSelf.worldConfig.floodFillId);
+
+                //set wall other open areas
+                for (var x = 0; x < map.length; x++) {
+                    for (var y = 0; y < map[0].length; y++) {
+                        if (map[x][y] == secureSelf.worldConfig.openCellId) {
+                            map[x][y] = secureSelf.worldConfig.fillMapId;
+                        }
+                    }
+                }
+
+                //set open flooded areas
+                for (var x = 0; x < map.length; x++) {
+                    for (var y = 0; y < map[0].length; y++) {
+                        if (map[x][y] == secureSelf.worldConfig.floodFillId) {
+                            map[x][y] = secureSelf.worldConfig.openCellId;
+                        }
+                    }
+                }
+            }
+        }
+        return map;
+    };
+
+    var checkMapIsOkey = function (map) {
+        var checkIsMapOkey = false;
+        var closedCellCount = 0;
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    closedCellCount++;
+                }
+            }
+        }
+        var closedRate = closedCellCount / (map.length * map[0].length);
+        if (closedRate < 0.5) {
+            checkIsMapOkey = true;
+        }
+        return checkIsMapOkey;
+    };
+
     my.Init = function (options) {
         secureSelf.initOptions(options);
+    };
+
+    my.GenerateMap = function () {
+        var tryCount = 0;
+        var maxTryCount = 20;
+        var isMapOkey = false;
+        while (!isMapOkey && tryCount < maxTryCount) {
+            map = buildRandomWorld([[]]);
+            isMapOkey = checkMapIsOkey(map);
+            if (isMapOkey) {
+                mapData = map;
+            }
+            tryCount++;
+        }
+        if (tryCount >= maxTryCount) {
+            console.log("yemedi");
+        };
+        //world is randomized in here 
+        logMap();
+        mapData = fillForest(map);
+        
+        //And we're done!
+        return mapData;
     };
 
     my.GetAsCsvData = function (map) {
@@ -452,4 +442,4 @@ var MapHandler = (function (my) {
     };
 
     return my;
-}(MapHandler || {}));
+} (MapHandler || {}));
