@@ -74,7 +74,7 @@ var MapHandler = (function (my) {
             for (var j = -1; j < 2; j++) {
                 var nb_x = i + x;
                 var nb_y = j + y;
-                if (i === 0 && j === 0) { }
+                if (i === 0 && j === 0) {}
                 //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
                 else if (nb_x < 0 || nb_y < 0 ||
                     nb_x >= map.length ||
@@ -142,7 +142,7 @@ var MapHandler = (function (my) {
     };
     var fillForest = function (map) {
         map = randomizeForestInside(map);
-        map = normalizeEdges(map);        
+        map = normalizeEdges(map);
         //map = fixForestBugs(map);
         return map;
     }
@@ -254,22 +254,104 @@ var MapHandler = (function (my) {
     var normalizeEdges = function (map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
-                if (map[x] && map[x][y] == secureSelf.worldConfig.openCellId) {
+                if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
                     if (map[x + 1] && map[x - 1]) {
 
+                        //Check S
+                        var nNeighbourOfS = getNNeighbour(map, x, y);
+                        var sNeighbourOfS = getSNeighbour(map, x, y);
+                        if (  
+                            ( //top should be forest
+                                nNeighbourOfS == secureSelf.worldConfig.closeCellId ||
+                                nNeighbourOfS == secureSelf.worldConfig.closeCellIdX
+                            ) && //down should be dirt
+                            sNeighbourOfS == secureSelf.worldConfig.openCellId
+                        ) {
+                            map[x][y] = Utils.Random.Int(21, 24);
+                        }
 
+                        //Check N
+                        var nNeighbourOfN = getNNeighbour(map, x, y);
+                        var sNeighbourOfN = getSNeighbour(map, x, y);
+                        if (  
+                            ( //down should be forest
+                                sNeighbourOfN == secureSelf.worldConfig.closeCellId ||
+                                sNeighbourOfN == secureSelf.worldConfig.closeCellIdX
+                            ) && //top should be dirt
+                                nNeighbourOfN == secureSelf.worldConfig.openCellId                                
+                             
+                            
+                        ) {
+                            map[x][y] = Utils.Random.Int(6, 9);
+                        }
 
-                        // if (getNNeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
-                        //     getNENeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
-                        //     getNWNeighbour(map,x,y) == secureSelf.worldConfig.fillMapId &&
-                        //     getSNeighbour(map,x,y) == secureSelf.worldConfig.openCellId
-                        // ) {
-                        //     map[x][y] = Utils.Random.Int(22, 24);
-                        // }                        
+                        //Check E
+                        var eNeighbourOfE = getENeighbour(map, x, y);
+                        var wNeighbourOfE = getWNeighbour(map, x, y);
+                        if (  
+                            ( //left should be forest
+                                wNeighbourOfE == secureSelf.worldConfig.closeCellId ||
+                                wNeighbourOfE == secureSelf.worldConfig.closeCellIdX
+                            ) && //right should be dirt
+                                eNeighbourOfE == secureSelf.worldConfig.openCellId                                
+                             
+                            
+                        ) {
+                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
+                        }
+
+                        //Check W
+                        var eNeighbourOfW = getENeighbour(map, x, y);
+                        var wNeighbourOfW = getWNeighbour(map, x, y);
+                        if (  
+                            ( //right should be forest
+                                eNeighbourOfW == secureSelf.worldConfig.closeCellId ||
+                                eNeighbourOfW == secureSelf.worldConfig.closeCellIdX
+                            ) && //left should be dirt
+                                wNeighbourOfW == secureSelf.worldConfig.openCellId                                
+                        ) {
+                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
+                        }
+
+                        //Check NW
+                        var numberOfAliveCell = countAliveNeighbours(map,x,y);
+                        var nNeighbourOfNW = getNNeighbour(map, x, y);
+                        var sNeighbourOfNW = getSNeighbour(map, x, y);
+                        if ( numberOfAliveCell == 5 &&
+                            ( 
+                                nNeighbourOfNW == secureSelf.worldConfig.openCellId &&
+                                sNeighbourOfNW == secureSelf.worldConfig.openCellId
+                            )                           
+                        ) {
+                            console.log("burası olmadı");
+                            map[x][y] = secureSelf.worldConfig.closeNW;
+                        }
                     }
                 }
             }
         }
+
+        /*for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x] && map[x][y] == secureSelf.worldConfig.openCellId) {
+                    if (map[x + 1] && map[x - 1]) {
+                        //Check S
+                        neNeighbourOfS = getNENeighbour(map, x, y);
+                        nwNeighbourOfS = getNWNeighbour(map, x, y);
+                        nNeighbourOfS = getNNeighbour(map, x, y);
+                        wNeighbourOfS = getWNeighbour(map, x, y);
+                        eNeighbourOfS = getENeighbour(map, x, y);
+                        numberOfCloseCell = countAliveNeighbours(map, x, y);
+                        if ( //topRight, topLeft and top should be closeCell                            
+                            (eNeighbourOfS == 21 || eNeighbourOfS == 22 || eNeighbourOfS == 23) &&
+                            (wNeighbourOfS == 23 || wNeighbourOfS == 23 || wNeighbourOfS == 23)
+                        ) {
+                            map[x][y] = Utils.Random.Int(21, 24);
+                        }
+                    }
+                }
+            }
+        }*/
         return map;
     }
 
@@ -401,7 +483,9 @@ var MapHandler = (function (my) {
         var maxTryCount = 20;
         var isMapOkey = false;
         while (!isMapOkey && tryCount < maxTryCount) {
-            map = buildRandomWorld([[]]);
+            map = buildRandomWorld([
+                []
+            ]);
             isMapOkey = checkMapIsOkey(map);
             if (isMapOkey) {
                 mapData = map;
@@ -414,7 +498,7 @@ var MapHandler = (function (my) {
         //world is randomized in here 
         logMap();
         mapData = fillForest(map);
-        
+
         //And we're done!
         return mapData;
     };
@@ -436,4 +520,4 @@ var MapHandler = (function (my) {
     };
 
     return my;
-} (MapHandler || {}));
+}(MapHandler || {}));
