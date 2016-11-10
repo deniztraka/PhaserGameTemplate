@@ -254,12 +254,6 @@ var MapHandler = (function (my) {
     var normalizeEdges = function (map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
-                if (map[x][y] == secureSelf.worldConfig.fillMapId) {
-                    console.log("asd");
-                    map[x][y] == Math.random() > 0.5 ? secureSelf.worldConfig.closeCellId : secureSelf.worldConfig.closeCellIdX;
-                }
-
-
                 if (map[x] && map[x][y] == secureSelf.worldConfig.openCellId) {
                     if (map[x + 1] && map[x - 1]) {
 
