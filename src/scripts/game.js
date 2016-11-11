@@ -25,30 +25,31 @@ var map = null;
 var layer = null;
 var cursors = null;
 var player = null;
+var world = null;
 
 DGame.Game.prototype = {
 
     create: function () {
-        
+
         MapHandler.Init({
-            width:64,
-            height:40,
+            width: 32,
+            height: 24,
             chanceToStartAlive: 0.4,
             birthLimit: 4,
             deathLimit: 3,
-            numberOfSteps:3,
+            numberOfSteps: 3,
         });
-        var world = MapHandler.GenerateMap();      
+        world = MapHandler.GenerateMap();
         var csvData = MapHandler.GetAsCsvData(world);
 
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
 
         //  Create our map (the 16x16 is the tile size)
-        map = this.game.add.tilemap('dynamicMap', 16, 16);
+        map = this.game.add.tilemap('dynamicMap', 32, 32);
 
         //  'tiles' = cache image key, 16x16 = tile size
-        map.addTilesetImage('tiles', 'tiles', 16, 16);
+        map.addTilesetImage('tiles', 'tiles', 32, 32);
 
         //  Create our layer
         layer = map.createLayer(0);
@@ -78,9 +79,9 @@ DGame.Game.prototype = {
         this.camera.follow(player);
 
         cursors = this.input.keyboard.createCursorKeys();
-            
+
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([11,16,6,7,8,9,14,19,24,23,22,21,20,15,10,5,12,13,17,18]);
+        map.setCollision([11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
     },
 
     update: function () {
@@ -106,8 +107,15 @@ DGame.Game.prototype = {
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
     },
-    render:function() {
+    render: function () {
         //this.game.debug.body(player);
+        for (var y = 0; y < world[0].length; y++) {
+            for (var x = 0; x < world.length; x++) {
+                //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y), (x*32)+8, (y*32)+12);
+                //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);
+                //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);                
+            }
+        }
     }
 
 };

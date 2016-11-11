@@ -1,4 +1,4 @@
-var MapHandler = (function (my) {
+var MapHandler = (function(my) {
     var world = [
         []
     ];
@@ -8,8 +8,8 @@ var MapHandler = (function (my) {
             birthLimit: 4,
             deathLimit: 3,
             numberOfSteps: 5,
-            width: 64,
-            height: 48
+            width: 10,
+            height: 10
         },
         worldConfig: {
             openCellId: 0,
@@ -33,10 +33,10 @@ var MapHandler = (function (my) {
             closeCurveSW: 13,
             closeCurveNE: 17,
             closeCurveNW: 18,
-            fillMapId: 1000,
+            fillMapId: 99,
             floodFillId: 30
         },
-        initOptions: function (options) {
+        initOptions: function(options) {
             this.configurations.width = options.width;
             this.configurations.height = options.height;
             this.configurations.chanceToStartAlive = options.chanceToStartAlive;
@@ -46,7 +46,7 @@ var MapHandler = (function (my) {
         }
     };
 
-    var initializeMap = function (isRandom, map) {
+    var initializeMap = function(isRandom, map) {
         for (var x = 0; x < secureSelf.configurations.width; x++) {
             map[x] = [];
             for (var y = 0; y < secureSelf.configurations.height; y++) {
@@ -68,13 +68,17 @@ var MapHandler = (function (my) {
         return map;
     };
 
-    var countAliveNeighbours = function (map, x, y) {
+    my.ClosedNeighbourCount = function(map, x, y) {
+        return countAliveNeighbours(map, x, y);
+    };
+
+    var countAliveNeighbours = function(map, x, y) {
         var count = 0;
         for (var i = -1; i < 2; i++) {
             for (var j = -1; j < 2; j++) {
                 var nb_x = i + x;
                 var nb_y = j + y;
-                if (i === 0 && j === 0) {}
+                if (i === 0 && j === 0) { }
                 //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
                 else if (nb_x < 0 || nb_y < 0 ||
                     nb_x >= map.length ||
@@ -88,7 +92,7 @@ var MapHandler = (function (my) {
         return count;
     };
 
-    var doSimulationStep = function (map) {
+    var doSimulationStep = function(map) {
         //Here's the new map we're going to copy our data into
         var newmap = [
             []
@@ -124,7 +128,7 @@ var MapHandler = (function (my) {
         return newmap;
     };
 
-    var placeTreasure = function (world, treasureHiddenLimit) {
+    var placeTreasure = function(world, treasureHiddenLimit) {
         //How hidden does a spot need to be for treasure?
         //I find treasureHiddenLimit 5 or 6 is good. 6 for very rare treasure.        
         for (var x = 0; x < worldWidth; x++) {
@@ -140,78 +144,31 @@ var MapHandler = (function (my) {
 
         return world;
     };
-    var fillForest = function (map) {
+    var fillForest = function(map) {
         map = randomizeForestInside(map);
         map = normalizeEdges(map);
-        //map = fixForestBugs(map);
+        map = normalizeCorners(map);
+        map = fixForestBugs(map);
         return map;
     }
 
-    var fixForestBugs = function (map) {
-        // for (var x = 0; x < map.length; x++) {
-        //     for (var y = 0; y < map[0].length; y++) {
-        //         if (map[x - 1] && map[x + 1] && map[x][y] != secureSelf.worldConfig.openCellId &&
-        //             (
-        //                 (
-        //                     map[x][y + 1] == secureSelf.worldConfig.openCellId &&
-        //                     map[x][y - 1] == secureSelf.worldConfig.openCellId
-        //                 ) ||
-        //                 (
-        //                     map[x - 1][y] == secureSelf.worldConfig.openCellId &&
-        //                     map[x + 1][y] == secureSelf.worldConfig.openCellId
-
-        //                 )
-        //             )
-        //         ) {
-        //             map[x][y] = 31;
-        //             if (map[x][y - 1] == secureSelf.worldConfig.openCellId) {
-        //                 map[x][y - 1] = 26;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // for (var x = 0; x < map.length; x++) {
-        //     for (var y = 0; y < map[0].length; y++) {
-        //         if (map[x][y] == 31) {
-        //             if (
-        //                 map[x][y + 1] == 31
-        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS0
-        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS1
-        //                 || map[x][y + 1] == secureSelf.worldConfig.closeS2
-        //                 || map[x][y + 1] == secureSelf.worldConfig.closeSW
-        //                 || map[x][y + 1] == secureSelf.worldConfig.closeSE) {
-        //                 map[x][y] = secureSelf.worldConfig.openCellId;
-        //             }
-        //         }
-        //     }
-        // }
-
+    var fixForestBugs = function(map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
-                if (x < 0 || y < 0 ||
-                    x >= map.length ||
-                    y >= map[0].length) {
-
-                    var aliveNeighbourCont = countAliveNeighbours(map, x, y);
-                    if (aliveNeighbourCont == 5) {
-                        debugger;
-                        //map[x][y] = 99;//secureSelf.worldConfig.openCellId;
+                if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    if (map[x + 1] && map[x - 1]) {
                     }
                 }
             }
         }
 
-
-
         return map;
     }
 
-    var randomizeForestInside = function (map) {
+    var randomizeForestInside = function(map) {
         for (var y = 0; y < map[0].length; y++) {
             for (var x = 0; x < map.length; x++) {
                 if (countAliveNeighbours(map, x, y) == 8) {
-                    debugger;
                     map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeCellId : secureSelf.worldConfig.closeCellIdX;
                 }
             }
@@ -219,48 +176,174 @@ var MapHandler = (function (my) {
         return map;
     };
 
-    var getSENeighbour = function (map, x, y) {
+    var getSENeighbour = function(map, x, y) {
         return map[x + 1][y + 1];
     };
 
-    var getSWNeighbour = function (map, x, y) {
+    var getSWNeighbour = function(map, x, y) {
         return map[x - 1][y + 1];
     };
 
-    var getNENeighbour = function (map, x, y) {
+    var getNENeighbour = function(map, x, y) {
         return map[x + 1][y - 1];
     };
 
-    var getNWNeighbour = function (map, x, y) {
+    var getNWNeighbour = function(map, x, y) {
         return map[x - 1][y - 1];
     };
 
-    var getENeighbour = function (map, x, y) {
+    var getENeighbour = function(map, x, y) {
         return map[x + 1][y];
     };
 
-    var getWNeighbour = function (map, x, y) {
+    var getWNeighbour = function(map, x, y) {
         return map[x - 1][y];
     };
 
-    var getNNeighbour = function (map, x, y) {
+    var getNNeighbour = function(map, x, y) {
         return map[x][y - 1];
     };
 
-    var getSNeighbour = function (map, x, y) {
+    var getSNeighbour = function(map, x, y) {
         return map[x][y + 1];
     };
+    var normalizeCorners = function(map) {
 
-    var normalizeEdges = function (map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
+                if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    if (map[x + 1] && map[x - 1]) {
+                        //Check NW
+                        var numberOfClosedCellNW = countAliveNeighbours(map, x, y);
+                        var eNeighbourOfNW = getENeighbour(map, x, y);
+                        var sNeighbourOfNW = getSNeighbour(map, x, y);
+                        if (numberOfClosedCellNW == 3) {
+                            if (
+                                (eNeighbourOfNW == secureSelf.worldConfig.closeN0 || eNeighbourOfNW == secureSelf.worldConfig.closeN1 || eNeighbourOfNW == secureSelf.worldConfig.closeN2) &&
+                                (sNeighbourOfNW == secureSelf.worldConfig.closeW0 || sNeighbourOfNW == secureSelf.worldConfig.closeW1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNW;
+                            }
+                        }
+
+                        //Check NWInside
+                        var numberOfClosedCellNWInside = countAliveNeighbours(map, x, y);
+                        var nwcNeighbourOfNWInside = getNWNeighbour(map, x, y);
+                        var nNeighbourOfNWInside = getNNeighbour(map, x, y);
+                        var wNeighbourOfNWInside = getWNeighbour(map, x, y);
+                        if (numberOfClosedCellNWInside == 7 && nwcNeighbourOfNWInside == secureSelf.worldConfig.openCellId) {
+                            if (
+                                (wNeighbourOfNWInside == secureSelf.worldConfig.closeN0 || wNeighbourOfNWInside == secureSelf.worldConfig.closeN1 || wNeighbourOfNWInside == secureSelf.worldConfig.closeN2) &&
+                                (nNeighbourOfNWInside == secureSelf.worldConfig.closeW0 || nNeighbourOfNWInside == secureSelf.worldConfig.closeW1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeCurveNW;
+                            }
+
+                        }
+
+                        //Check NE
+                        var numberOfClosedCellNE = countAliveNeighbours(map, x, y);
+                        var wNeighbourOfNE = getWNeighbour(map, x, y);
+                        var sNeighbourOfNE = getSNeighbour(map, x, y);
+                        if (numberOfClosedCellNE == 3) {
+                            if (
+                                (wNeighbourOfNE == secureSelf.worldConfig.closeN0 || wNeighbourOfNE == secureSelf.worldConfig.closeN1 || wNeighbourOfNE == secureSelf.worldConfig.closeN2) &&
+                                (sNeighbourOfNE == secureSelf.worldConfig.closeE0 || sNeighbourOfNE == secureSelf.worldConfig.closeE1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNE;
+                            }
+                        }
+
+                        //Check NEInside
+                        var numberOfClosedCellNEInside = countAliveNeighbours(map, x, y);
+                        var necNeighbourOfNEInside = getNENeighbour(map, x, y);
+                        var nNeighbourOfNEInside = getNNeighbour(map, x, y);
+                        var eNeighbourOfNEInside = getENeighbour(map, x, y);
+                        if (numberOfClosedCellNEInside == 7 && necNeighbourOfNEInside == secureSelf.worldConfig.openCellId) {
+                            if (
+                                (eNeighbourOfNEInside == secureSelf.worldConfig.closeN0 || eNeighbourOfNEInside == secureSelf.worldConfig.closeN1 || eNeighbourOfNEInside == secureSelf.worldConfig.closeN2) &&
+                                (nNeighbourOfNEInside == secureSelf.worldConfig.closeE0 || nNeighbourOfNEInside == secureSelf.worldConfig.closeE1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeCurveNE;
+                            }
+
+                        }
+
+                        //Check SE
+                        var numberOfClosedCellSE = countAliveNeighbours(map, x, y);
+                        var wNeighbourOfSE = getWNeighbour(map, x, y);
+                        var nNeighbourOfSE = getNNeighbour(map, x, y);
+                        if (numberOfClosedCellSE == 3) {
+                            if (
+                                (wNeighbourOfSE == secureSelf.worldConfig.closeS0 || wNeighbourOfSE == secureSelf.worldConfig.closeS1 || wNeighbourOfSE == secureSelf.worldConfig.closeS2) &&
+                                (nNeighbourOfSE == secureSelf.worldConfig.closeE0 || nNeighbourOfSE == secureSelf.worldConfig.closeE1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSE;
+                            }
+                        }
+
+                        //Check SEInside
+                        var numberOfClosedCellSEInside = countAliveNeighbours(map, x, y);
+                        var secNeighbourOfSEInside = getSENeighbour(map, x, y);
+                        var sNeighbourOfSEInside = getSNeighbour(map, x, y);
+                        var eNeighbourOfSEInside = getENeighbour(map, x, y);
+                        if (numberOfClosedCellSEInside == 7 && secNeighbourOfSEInside == secureSelf.worldConfig.openCellId) {
+                            if (
+                                (eNeighbourOfSEInside == secureSelf.worldConfig.closeS0 || eNeighbourOfSEInside == secureSelf.worldConfig.closeS1 || eNeighbourOfSEInside == secureSelf.worldConfig.closeS2) &&
+                                (sNeighbourOfSEInside == secureSelf.worldConfig.closeE0 || sNeighbourOfSEInside == secureSelf.worldConfig.closeE1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeCurveSE;
+                            }
+
+                        }
+
+                        //Check SW
+                        var numberOfClosedCellSW = countAliveNeighbours(map, x, y);
+                        var eNeighbourOfSW = getENeighbour(map, x, y);
+                        var nNeighbourOfSW = getNNeighbour(map, x, y);
+                        if (numberOfClosedCellSW == 3) {
+                            if (
+                                (eNeighbourOfSW == secureSelf.worldConfig.closeS0 || eNeighbourOfSW == secureSelf.worldConfig.closeS1 || eNeighbourOfSW == secureSelf.worldConfig.closeS2) &&
+                                (nNeighbourOfSW == secureSelf.worldConfig.closeW0 || nNeighbourOfSW == secureSelf.worldConfig.closeW1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSW;
+                            }
+                        }
+
+                        //Check SWInside
+                        var numberOfClosedCellSWInside = countAliveNeighbours(map, x, y);
+                        var swcNeighbourOfSWInside = getSWNeighbour(map, x, y);
+                        var sNeighbourOfSWInside = getSNeighbour(map, x, y);
+                        var wNeighbourOfSWInside = getWNeighbour(map, x, y);
+                        if (numberOfClosedCellSWInside == 7 && swcNeighbourOfSWInside == secureSelf.worldConfig.openCellId) {
+                            if (
+                                (wNeighbourOfSWInside == secureSelf.worldConfig.closeS0 || wNeighbourOfSWInside == secureSelf.worldConfig.closeS1 || wNeighbourOfSWInside == secureSelf.worldConfig.closeS2) &&
+                                (sNeighbourOfSEInside == secureSelf.worldConfig.closeW0 || sNeighbourOfSEInside == secureSelf.worldConfig.closeW1)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeCurveSW;
+                            }
+
+                        }
+
+
+                    }
+                }
+            }
+        }
+        return map;
+    };
+
+    var normalizeEdges = function(map) {
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+
                 if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
                     if (map[x + 1] && map[x - 1]) {
 
                         //Check S
                         var nNeighbourOfS = getNNeighbour(map, x, y);
                         var sNeighbourOfS = getSNeighbour(map, x, y);
-                        if (  
+                        if (
                             ( //top should be forest
                                 nNeighbourOfS == secureSelf.worldConfig.closeCellId ||
                                 nNeighbourOfS == secureSelf.worldConfig.closeCellIdX
@@ -273,14 +356,14 @@ var MapHandler = (function (my) {
                         //Check N
                         var nNeighbourOfN = getNNeighbour(map, x, y);
                         var sNeighbourOfN = getSNeighbour(map, x, y);
-                        if (  
+                        if (
                             ( //down should be forest
                                 sNeighbourOfN == secureSelf.worldConfig.closeCellId ||
                                 sNeighbourOfN == secureSelf.worldConfig.closeCellIdX
                             ) && //top should be dirt
-                                nNeighbourOfN == secureSelf.worldConfig.openCellId                                
-                             
-                            
+                            nNeighbourOfN == secureSelf.worldConfig.openCellId
+
+
                         ) {
                             map[x][y] = Utils.Random.Int(6, 9);
                         }
@@ -288,14 +371,15 @@ var MapHandler = (function (my) {
                         //Check E
                         var eNeighbourOfE = getENeighbour(map, x, y);
                         var wNeighbourOfE = getWNeighbour(map, x, y);
-                        if (  
-                            ( //left should be forest
-                                wNeighbourOfE == secureSelf.worldConfig.closeCellId ||
-                                wNeighbourOfE == secureSelf.worldConfig.closeCellIdX
-                            ) && //right should be dirt
-                                eNeighbourOfE == secureSelf.worldConfig.openCellId                                
-                             
-                            
+                        if (
+                            (
+                                ( //left should be forest
+                                    wNeighbourOfE == secureSelf.worldConfig.closeCellId ||
+                                    wNeighbourOfE == secureSelf.worldConfig.closeCellIdX
+                                ) && //right should be dirt
+                                eNeighbourOfE == secureSelf.worldConfig.openCellId
+                            )
+
                         ) {
                             map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
                         }
@@ -303,59 +387,25 @@ var MapHandler = (function (my) {
                         //Check W
                         var eNeighbourOfW = getENeighbour(map, x, y);
                         var wNeighbourOfW = getWNeighbour(map, x, y);
-                        if (  
+                        if (
                             ( //right should be forest
                                 eNeighbourOfW == secureSelf.worldConfig.closeCellId ||
                                 eNeighbourOfW == secureSelf.worldConfig.closeCellIdX
                             ) && //left should be dirt
-                                wNeighbourOfW == secureSelf.worldConfig.openCellId                                
+                            wNeighbourOfW == secureSelf.worldConfig.openCellId
                         ) {
                             map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
                         }
+                    } else {
 
-                        //Check NW
-                        var numberOfAliveCell = countAliveNeighbours(map,x,y);
-                        var nNeighbourOfNW = getNNeighbour(map, x, y);
-                        var sNeighbourOfNW = getSNeighbour(map, x, y);
-                        if ( numberOfAliveCell == 5 &&
-                            ( 
-                                nNeighbourOfNW == secureSelf.worldConfig.openCellId &&
-                                sNeighbourOfNW == secureSelf.worldConfig.openCellId
-                            )                           
-                        ) {
-                            console.log("burası olmadı");
-                            map[x][y] = secureSelf.worldConfig.closeNW;
-                        }
                     }
                 }
             }
         }
-
-        /*for (var x = 0; x < map.length; x++) {
-            for (var y = 0; y < map[0].length; y++) {
-                if (map[x] && map[x][y] == secureSelf.worldConfig.openCellId) {
-                    if (map[x + 1] && map[x - 1]) {
-                        //Check S
-                        neNeighbourOfS = getNENeighbour(map, x, y);
-                        nwNeighbourOfS = getNWNeighbour(map, x, y);
-                        nNeighbourOfS = getNNeighbour(map, x, y);
-                        wNeighbourOfS = getWNeighbour(map, x, y);
-                        eNeighbourOfS = getENeighbour(map, x, y);
-                        numberOfCloseCell = countAliveNeighbours(map, x, y);
-                        if ( //topRight, topLeft and top should be closeCell                            
-                            (eNeighbourOfS == 21 || eNeighbourOfS == 22 || eNeighbourOfS == 23) &&
-                            (wNeighbourOfS == 23 || wNeighbourOfS == 23 || wNeighbourOfS == 23)
-                        ) {
-                            map[x][y] = Utils.Random.Int(21, 24);
-                        }
-                    }
-                }
-            }
-        }*/
         return map;
     }
 
-    var logMap = function () {
+    var logMap = function() {
         var logString = "";
         for (var y = 0; y < secureSelf.configurations.height; y++) {
             for (var x = 0; x < secureSelf.configurations.width; x++) {
@@ -404,7 +454,7 @@ var MapHandler = (function (my) {
         }
     }
 
-    var buildRandomWorld = function (map) {
+    var buildRandomWorld = function(map) {
         //And randomly scatter solid blocks
         map = initializeMap(true, map);;
 
@@ -457,7 +507,7 @@ var MapHandler = (function (my) {
         return map;
     };
 
-    var checkMapIsOkey = function (map) {
+    var checkMapIsOkey = function(map) {
         var checkIsMapOkey = false;
         var closedCellCount = 0;
         for (var x = 0; x < map.length; x++) {
@@ -474,11 +524,11 @@ var MapHandler = (function (my) {
         return checkIsMapOkey;
     };
 
-    my.Init = function (options) {
+    my.Init = function(options) {
         secureSelf.initOptions(options);
     };
 
-    my.GenerateMap = function () {
+    my.GenerateMap = function() {
         var tryCount = 0;
         var maxTryCount = 20;
         var isMapOkey = false;
@@ -503,7 +553,7 @@ var MapHandler = (function (my) {
         return mapData;
     };
 
-    my.GetAsCsvData = function (map) {
+    my.GetAsCsvData = function(map) {
         var csvData = "";
         for (var y = 0; y < map[0].length; y++) {
             for (var x = 0; x < map.length; x++) {
@@ -520,4 +570,4 @@ var MapHandler = (function (my) {
     };
 
     return my;
-}(MapHandler || {}));
+} (MapHandler || {}));
