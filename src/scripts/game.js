@@ -111,6 +111,7 @@ DGame.Game.prototype = {
         //this.game.debug.body(player);
         for (var y = 0; y < world[0].length; y++) {
             for (var x = 0; x < world.length; x++) {
+                //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y,0), (x*32)+8, (y*32)+12);
                 //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y), (x*32)+8, (y*32)+12);
                 //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);
                 //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);                

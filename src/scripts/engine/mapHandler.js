@@ -1,4 +1,4 @@
-var MapHandler = (function(my) {
+var MapHandler = (function (my) {
     var world = [
         []
     ];
@@ -36,7 +36,7 @@ var MapHandler = (function(my) {
             fillMapId: 99,
             floodFillId: 30
         },
-        initOptions: function(options) {
+        initOptions: function (options) {
             this.configurations.width = options.width;
             this.configurations.height = options.height;
             this.configurations.chanceToStartAlive = options.chanceToStartAlive;
@@ -46,7 +46,7 @@ var MapHandler = (function(my) {
         }
     };
 
-    var initializeMap = function(isRandom, map) {
+    var initializeMap = function (isRandom, map) {
         for (var x = 0; x < secureSelf.configurations.width; x++) {
             map[x] = [];
             for (var y = 0; y < secureSelf.configurations.height; y++) {
@@ -68,17 +68,37 @@ var MapHandler = (function(my) {
         return map;
     };
 
-    my.ClosedNeighbourCount = function(map, x, y) {
-        return countAliveNeighbours(map, x, y);
+    my.ClosedNeighbourCount = function (map, x, y, id) {
+
+        return typeof id == 'undefined' ? countAliveNeighbours(map, x, y) : countCellsOfType(map, x, y, id);
     };
 
-    var countAliveNeighbours = function(map, x, y) {
+    var countCellsOfType = function (map, x, y, id) {
         var count = 0;
         for (var i = -1; i < 2; i++) {
             for (var j = -1; j < 2; j++) {
                 var nb_x = i + x;
                 var nb_y = j + y;
-                if (i === 0 && j === 0) { }
+                if (i === 0 && j === 0) {}
+                //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
+                else if (nb_x < 0 || nb_y < 0 ||
+                    nb_x >= map.length ||
+                    nb_y >= map[0].length) {
+                    count = count + 1;
+                } else if (map[nb_x][nb_y] === id) {
+                    count = count + 1;
+                }
+            }
+        }
+        return count;
+    };
+    var countAliveNeighbours = function (map, x, y) {
+        var count = 0;
+        for (var i = -1; i < 2; i++) {
+            for (var j = -1; j < 2; j++) {
+                var nb_x = i + x;
+                var nb_y = j + y;
+                if (i === 0 && j === 0) {}
                 //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
                 else if (nb_x < 0 || nb_y < 0 ||
                     nb_x >= map.length ||
@@ -92,7 +112,7 @@ var MapHandler = (function(my) {
         return count;
     };
 
-    var doSimulationStep = function(map) {
+    var doSimulationStep = function (map) {
         //Here's the new map we're going to copy our data into
         var newmap = [
             []
@@ -128,7 +148,7 @@ var MapHandler = (function(my) {
         return newmap;
     };
 
-    var placeTreasure = function(world, treasureHiddenLimit) {
+    var placeTreasure = function (world, treasureHiddenLimit) {
         //How hidden does a spot need to be for treasure?
         //I find treasureHiddenLimit 5 or 6 is good. 6 for very rare treasure.        
         for (var x = 0; x < worldWidth; x++) {
@@ -144,7 +164,7 @@ var MapHandler = (function(my) {
 
         return world;
     };
-    var fillForest = function(map) {
+    var fillForest = function (map) {
         map = randomizeForestInside(map);
         map = normalizeEdges(map);
         map = normalizeCorners(map);
@@ -152,12 +172,11 @@ var MapHandler = (function(my) {
         return map;
     }
 
-    var fixForestBugs = function(map) {
+    var fixForestBugs = function (map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
                 if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
-                    if (map[x + 1] && map[x - 1]) {
-                    }
+                    if (map[x + 1] && map[x - 1]) {}
                 }
             }
         }
@@ -165,7 +184,7 @@ var MapHandler = (function(my) {
         return map;
     }
 
-    var randomizeForestInside = function(map) {
+    var randomizeForestInside = function (map) {
         for (var y = 0; y < map[0].length; y++) {
             for (var x = 0; x < map.length; x++) {
                 if (countAliveNeighbours(map, x, y) == 8) {
@@ -176,55 +195,269 @@ var MapHandler = (function(my) {
         return map;
     };
 
-    var getSENeighbour = function(map, x, y) {
+    var getSENeighbour = function (map, x, y) {
         return map[x + 1][y + 1];
     };
 
-    var getSWNeighbour = function(map, x, y) {
+    var getSWNeighbour = function (map, x, y) {
         return map[x - 1][y + 1];
     };
 
-    var getNENeighbour = function(map, x, y) {
+    var getNENeighbour = function (map, x, y) {
         return map[x + 1][y - 1];
     };
 
-    var getNWNeighbour = function(map, x, y) {
+    var getNWNeighbour = function (map, x, y) {
         return map[x - 1][y - 1];
     };
 
-    var getENeighbour = function(map, x, y) {
+    var getENeighbour = function (map, x, y) {
         return map[x + 1][y];
     };
 
-    var getWNeighbour = function(map, x, y) {
+    var getWNeighbour = function (map, x, y) {
         return map[x - 1][y];
     };
 
-    var getNNeighbour = function(map, x, y) {
+    var getNNeighbour = function (map, x, y) {
         return map[x][y - 1];
     };
 
-    var getSNeighbour = function(map, x, y) {
+    var getSNeighbour = function (map, x, y) {
         return map[x][y + 1];
     };
-    var normalizeCorners = function(map) {
-
+    var normalizeCorners = function (map) {
+        //Check NW
         for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    //var numberOfClosedCells = countAliveNeighbours(map, x, y);
+                    //var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    var wNeighbour = getWNeighbour(map, x, y);
+                    var nNeighbour = getNNeighbour(map, x, y);
+                    var sNeighbour = getSNeighbour(map, x, y);
+                    var eNeighbour = getENeighbour(map, x, y);
+                    var nwNeighbour = getNWNeighbour(map, x, y);
+                    var seNeighbour = getSENeighbour(map, x, y);
+                    var nwOk = false;
+                    if ((nwNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (nNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (wNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (sNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (seNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (eNeighbour != secureSelf.worldConfig.openCellId)) {
+                        nwOk = true;
+                    }
+
+
+                    map[x][y] = nwOk ? secureSelf.worldConfig.closeNW : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check NE
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    //var numberOfClosedCells = countAliveNeighbours(map, x, y);
+                    //var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    var wNeighbour = getWNeighbour(map, x, y);
+                    var nNeighbour = getNNeighbour(map, x, y);
+                    var sNeighbour = getSNeighbour(map, x, y);
+                    var eNeighbour = getENeighbour(map, x, y);
+                    var neNeighbour = getNENeighbour(map, x, y);
+                    var swNeighbour = getSWNeighbour(map, x, y);
+                    var ok = false;
+                    if ((neNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (nNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (eNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (sNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (swNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (wNeighbour != secureSelf.worldConfig.openCellId)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeNE : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check SE
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    //var numberOfClosedCells = countAliveNeighbours(map, x, y);
+                    //var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    var wNeighbour = getWNeighbour(map, x, y);
+                    var nNeighbour = getNNeighbour(map, x, y);
+                    var sNeighbour = getSNeighbour(map, x, y);
+                    var eNeighbour = getENeighbour(map, x, y);
+                    var seNeighbour = getSENeighbour(map, x, y);
+                    var nwNeighbour = getNWNeighbour(map, x, y);
+                    var ok = false;
+                    if ((seNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (nNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (eNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (sNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (wNeighbour != secureSelf.worldConfig.openCellId) && 
+                        (nwNeighbour != secureSelf.worldConfig.openCellId)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeSE : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check SW
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    //var numberOfClosedCells = countAliveNeighbours(map, x, y);
+                    //var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    var wNeighbour = getWNeighbour(map, x, y);
+                    var nNeighbour = getNNeighbour(map, x, y);
+                    var sNeighbour = getSNeighbour(map, x, y);
+                    var eNeighbour = getENeighbour(map, x, y);
+                    var swNeighbour = getSWNeighbour(map, x, y);
+                    var neNeighbour = getNENeighbour(map, x, y);
+                    var ok = false;
+                    if ((swNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (nNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (eNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (sNeighbour == secureSelf.worldConfig.openCellId) &&
+                        (neNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (wNeighbour == secureSelf.worldConfig.openCellId)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeSW : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check NWInside
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    // var wNeighbour = getWNeighbour(map, x, y);
+                    // var nNeighbour = getNNeighbour(map, x, y);
+                    // var sNeighbour = getSNeighbour(map, x, y);
+                    // var eNeighbour = getENeighbour(map, x, y);
+                    var nwNeighbour = getNWNeighbour(map, x, y);
+                    var ok = false;
+                    if ((nwNeighbour == secureSelf.worldConfig.openCellId) && (numberOfDirtFilledCells == 1)
+                        /*(nNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (eNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (sNeighbour != secureSelf.worldConfig.openCellId) &&
+                        (wNeighbour != secureSelf.worldConfig.openCellId)*/) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeCurveNW : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check NEInside
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    // var wNeighbour = getWNeighbour(map, x, y);
+                    // var nNeighbour = getNNeighbour(map, x, y);
+                    // var sNeighbour = getSNeighbour(map, x, y);
+                    // var eNeighbour = getENeighbour(map, x, y);
+                    var neNeighbour = getNENeighbour(map, x, y);
+                    var ok = false;
+                    if ((neNeighbour == secureSelf.worldConfig.openCellId) && (numberOfDirtFilledCells == 1)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeCurveNE : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }        
+        
+        //Check SEInside
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    // var wNeighbour = getWNeighbour(map, x, y);
+                    // var nNeighbour = getNNeighbour(map, x, y);
+                    // var sNeighbour = getSNeighbour(map, x, y);
+                    // var eNeighbour = getENeighbour(map, x, y);
+                    var seNeighbour = getSENeighbour(map, x, y);
+                    var ok = false;
+                    if ((seNeighbour == secureSelf.worldConfig.openCellId) && (numberOfDirtFilledCells == 1)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeCurveSE : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        //Check SWInside
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[0].length; y++) {
+                if (map[x - 1] && map[x + 1] && map[x][y] == secureSelf.worldConfig.fillMapId) {
+                    var numberOfDirtFilledCells = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                    // var wNeighbour = getWNeighbour(map, x, y);
+                    // var nNeighbour = getNNeighbour(map, x, y);
+                    // var sNeighbour = getSNeighbour(map, x, y);
+                    // var eNeighbour = getENeighbour(map, x, y);
+                    var swNeighbour = getSWNeighbour(map, x, y);
+                    var ok = false;
+                    if ((swNeighbour == secureSelf.worldConfig.openCellId) && (numberOfDirtFilledCells == 1)) {
+                        ok = true;
+                    }
+
+                    map[x][y] = ok ? secureSelf.worldConfig.closeCurveSW : secureSelf.worldConfig.fillMapId;
+                }
+            }
+        }
+
+        /*for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
                 if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
                     if (map[x + 1] && map[x - 1]) {
                         //Check NW
                         var numberOfClosedCellNW = countAliveNeighbours(map, x, y);
-                        var eNeighbourOfNW = getENeighbour(map, x, y);
+                        var numberOfDirtFilledCellsNW = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
+                        var wNeighbourOfNW = getWNeighbour(map, x, y);
                         var sNeighbourOfNW = getSNeighbour(map, x, y);
+                        var eNeighbourOfNW = getENeighbour(map, x, y);
+                        var nNeighbourOfNW = getNNeighbour(map, x, y);
+                        var nwNeighbourOfNW = getNWNeighbour(map, x, y);
                         if (numberOfClosedCellNW == 3) {
                             if (
-                                (eNeighbourOfNW == secureSelf.worldConfig.closeN0 || eNeighbourOfNW == secureSelf.worldConfig.closeN1 || eNeighbourOfNW == secureSelf.worldConfig.closeN2) &&
-                                (sNeighbourOfNW == secureSelf.worldConfig.closeW0 || sNeighbourOfNW == secureSelf.worldConfig.closeW1)
+                                (eNeighbourOfNW == secureSelf.worldConfig.closeN0 || eNeighbourOfNW == secureSelf.worldConfig.closeN1 || eNeighbourOfNW == secureSelf.worldConfig.closeN2 || eNeighbourOfNW == secureSelf.worldConfig.closeNE) &&
+                                (sNeighbourOfNW == secureSelf.worldConfig.closeW0 || sNeighbourOfNW == secureSelf.worldConfig.closeW1 || sNeighbourOfNW == secureSelf.worldConfig.closeSW)
                             ) {
                                 map[x][y] = secureSelf.worldConfig.closeNW;
                             }
-                        }
+                        }else
+                        if (numberOfDirtFilledCellsNW == 3 ) {
+                            if (
+                                (wNeighbourOfNW == secureSelf.worldConfig.openCellId) &&
+                                (sNeighbourOfNW == secureSelf.worldConfig.fillMapId) &&
+                                (eNeighbourOfNW == secureSelf.worldConfig.fillMapId) &&
+                                (nNeighbourOfNW == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNW;
+                            }
+                        }else if (
+                                (wNeighbourOfNW == secureSelf.worldConfig.openCellId) &&
+                                (sNeighbourOfNW == secureSelf.worldConfig.fillMapId) &&
+                                (eNeighbourOfNW == secureSelf.worldConfig.fillMapId) &&
+                                (nNeighbourOfNW == secureSelf.worldConfig.openCellId) &&
+                                (nwNeighbourOfNW == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNW;
+                            }
 
                         //Check NWInside
                         var numberOfClosedCellNWInside = countAliveNeighbours(map, x, y);
@@ -243,8 +476,12 @@ var MapHandler = (function(my) {
 
                         //Check NE
                         var numberOfClosedCellNE = countAliveNeighbours(map, x, y);
+                        var numberOfDirtFilledCellsNE = countCellsOfType(map, x, y, secureSelf.worldConfig.openCellId);
                         var wNeighbourOfNE = getWNeighbour(map, x, y);
                         var sNeighbourOfNE = getSNeighbour(map, x, y);
+                        var eNeighbourOfNE = getENeighbour(map, x, y);
+                        var nNeighbourOfNE = getNNeighbour(map, x, y);
+                        var neNeighbourOfNE = getNENeighbour(map, x, y);
                         if (numberOfClosedCellNE == 3) {
                             if (
                                 (wNeighbourOfNE == secureSelf.worldConfig.closeN0 || wNeighbourOfNE == secureSelf.worldConfig.closeN1 || wNeighbourOfNE == secureSelf.worldConfig.closeN2) &&
@@ -252,7 +489,25 @@ var MapHandler = (function(my) {
                             ) {
                                 map[x][y] = secureSelf.worldConfig.closeNE;
                             }
-                        }
+                        } else
+                        if (numberOfDirtFilledCellsNE == 3 ) {
+                            if (
+                                (wNeighbourOfNE == secureSelf.worldConfig.fillMapId) &&
+                                (sNeighbourOfNE == secureSelf.worldConfig.fillMapId) &&
+                                (eNeighbourOfNE == secureSelf.worldConfig.openCellId) &&
+                                (nNeighbourOfNE == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNE;
+                            }
+                        } else if (
+                                (wNeighbourOfNE == secureSelf.worldConfig.fillMapId) &&
+                                (sNeighbourOfNE == secureSelf.worldConfig.fillMapId) &&
+                                (eNeighbourOfNE == secureSelf.worldConfig.openCellId) &&
+                                (nNeighbourOfNE == secureSelf.worldConfig.openCellId) &&
+                                (neNeighbourOfNE == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeNE;
+                            }
 
                         //Check NEInside
                         var numberOfClosedCellNEInside = countAliveNeighbours(map, x, y);
@@ -271,8 +526,12 @@ var MapHandler = (function(my) {
 
                         //Check SE
                         var numberOfClosedCellSE = countAliveNeighbours(map, x, y);
+                        var numberOfDirtFilledCellsSE = countCellsOfType(map,x,y,secureSelf.worldConfig.openCellId);
                         var wNeighbourOfSE = getWNeighbour(map, x, y);
                         var nNeighbourOfSE = getNNeighbour(map, x, y);
+                        var sNeighbourOfSE = getSNeighbour(map, x, y);
+                        var eNeighbourOfSE = getENeighbour(map, x, y);
+                        var seNeighbourOfSE = getSENeighbour(map,x ,y);
                         if (numberOfClosedCellSE == 3) {
                             if (
                                 (wNeighbourOfSE == secureSelf.worldConfig.closeS0 || wNeighbourOfSE == secureSelf.worldConfig.closeS1 || wNeighbourOfSE == secureSelf.worldConfig.closeS2) &&
@@ -280,7 +539,25 @@ var MapHandler = (function(my) {
                             ) {
                                 map[x][y] = secureSelf.worldConfig.closeSE;
                             }
-                        }
+                        }else
+                        if (numberOfDirtFilledCellsSE == 3 ) {
+                            if (
+                                (wNeighbourOfSE == secureSelf.worldConfig.fillMapId) &&
+                                (sNeighbourOfSE == secureSelf.worldConfig.openCellId) &&
+                                (eNeighbourOfSE == secureSelf.worldConfig.openCellId) &&
+                                (nNeighbourOfSE == secureSelf.worldConfig.fillMapId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSE;
+                            }
+                        } else if (
+                                (wNeighbourOfSE == secureSelf.worldConfig.fillMapId) &&
+                                (sNeighbourOfSE == secureSelf.worldConfig.openCellId) &&
+                                (eNeighbourOfSE == secureSelf.worldConfig.openCellId) &&
+                                (nNeighbourOfSE == secureSelf.worldConfig.fillMapId) &&
+                                (seNeighbourOfSE == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSE;
+                            }
 
                         //Check SEInside
                         var numberOfClosedCellSEInside = countAliveNeighbours(map, x, y);
@@ -299,8 +576,12 @@ var MapHandler = (function(my) {
 
                         //Check SW
                         var numberOfClosedCellSW = countAliveNeighbours(map, x, y);
-                        var eNeighbourOfSW = getENeighbour(map, x, y);
+                        var numberOfDirtFilledCellsSW = countCellsOfType(map,x,y,secureSelf.worldConfig.openCellId); 
+                        var wNeighbourOfSW = getWNeighbour(map, x, y);
                         var nNeighbourOfSW = getNNeighbour(map, x, y);
+                        var sNeighbourOfSW = getSNeighbour(map, x, y);
+                        var eNeighbourOfSW = getENeighbour(map, x, y);
+                        var swNeighbourOfSW = getSWNeighbour(map, x, y);
                         if (numberOfClosedCellSW == 3) {
                             if (
                                 (eNeighbourOfSW == secureSelf.worldConfig.closeS0 || eNeighbourOfSW == secureSelf.worldConfig.closeS1 || eNeighbourOfSW == secureSelf.worldConfig.closeS2) &&
@@ -308,13 +589,32 @@ var MapHandler = (function(my) {
                             ) {
                                 map[x][y] = secureSelf.worldConfig.closeSW;
                             }
-                        }
+                        }else
+                        if (numberOfDirtFilledCellsSW == 3 ) {
+                            if (
+                                (wNeighbourOfSW == secureSelf.worldConfig.openCellId) &&
+                                (sNeighbourOfSW == secureSelf.worldConfig.openCellId) &&
+                                (eNeighbourOfSW == secureSelf.worldConfig.fillMapId) &&
+                                (nNeighbourOfSW == secureSelf.worldConfig.fillMapId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSW;
+                            }
+                        } else if (
+                                (wNeighbourOfSW == secureSelf.worldConfig.openCellId) &&
+                                (sNeighbourOfSW == secureSelf.worldConfig.openCellId) &&
+                                (eNeighbourOfSW == secureSelf.worldConfig.fillMapId) &&
+                                (nNeighbourOfSW == secureSelf.worldConfig.fillMapId) &&
+                                (swNeighbourOfSW == secureSelf.worldConfig.openCellId)
+                            ) {
+                                map[x][y] = secureSelf.worldConfig.closeSW;
+                            }
 
                         //Check SWInside
                         var numberOfClosedCellSWInside = countAliveNeighbours(map, x, y);
                         var swcNeighbourOfSWInside = getSWNeighbour(map, x, y);
                         var sNeighbourOfSWInside = getSNeighbour(map, x, y);
                         var wNeighbourOfSWInside = getWNeighbour(map, x, y);
+                        var swNeighbourOfSWInside = getSWNeighbour(map, x, y);
                         if (numberOfClosedCellSWInside == 7 && swcNeighbourOfSWInside == secureSelf.worldConfig.openCellId) {
                             if (
                                 (wNeighbourOfSWInside == secureSelf.worldConfig.closeS0 || wNeighbourOfSWInside == secureSelf.worldConfig.closeS1 || wNeighbourOfSWInside == secureSelf.worldConfig.closeS2) &&
@@ -322,18 +622,18 @@ var MapHandler = (function(my) {
                             ) {
                                 map[x][y] = secureSelf.worldConfig.closeCurveSW;
                             }
-
+                        } else if (wNeighbourOfSWInside == secureSelf.worldConfig.closeSW && swNeighbourOfSWInside == secureSelf.worldConfig.openCellId ){
+                            map[x][y] = secureSelf.worldConfig.closeCurveSW;
+                            console.log("fgd" +x+y);
                         }
-
-
                     }
                 }
             }
-        }
+        }*/
         return map;
     };
 
-    var normalizeEdges = function(map) {
+    var normalizeEdges = function (map) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
 
@@ -343,12 +643,14 @@ var MapHandler = (function(my) {
                         //Check S
                         var nNeighbourOfS = getNNeighbour(map, x, y);
                         var sNeighbourOfS = getSNeighbour(map, x, y);
+                        var wNeighbourOfS = getWNeighbour(map, x, y);
+                        var eNeighbourOfS = getENeighbour(map, x, y);
                         if (
                             ( //top should be forest
                                 nNeighbourOfS == secureSelf.worldConfig.closeCellId ||
                                 nNeighbourOfS == secureSelf.worldConfig.closeCellIdX
                             ) && //down should be dirt
-                            sNeighbourOfS == secureSelf.worldConfig.openCellId
+                            sNeighbourOfS == secureSelf.worldConfig.openCellId                                                         
                         ) {
                             map[x][y] = Utils.Random.Int(21, 24);
                         }
@@ -356,13 +658,14 @@ var MapHandler = (function(my) {
                         //Check N
                         var nNeighbourOfN = getNNeighbour(map, x, y);
                         var sNeighbourOfN = getSNeighbour(map, x, y);
+                        var wNeighbourOfN = getWNeighbour(map, x, y);
+                        var eNeighbourOfN = getENeighbour(map, x, y);
                         if (
                             ( //down should be forest
                                 sNeighbourOfN == secureSelf.worldConfig.closeCellId ||
-                                sNeighbourOfN == secureSelf.worldConfig.closeCellIdX
+                                sNeighbourOfN == secureSelf.worldConfig.closeCellIdX                                 
                             ) && //top should be dirt
-                            nNeighbourOfN == secureSelf.worldConfig.openCellId
-
+                            nNeighbourOfN == secureSelf.worldConfig.openCellId                            
 
                         ) {
                             map[x][y] = Utils.Random.Int(6, 9);
@@ -405,7 +708,7 @@ var MapHandler = (function(my) {
         return map;
     }
 
-    var logMap = function() {
+    var logMap = function () {
         var logString = "";
         for (var y = 0; y < secureSelf.configurations.height; y++) {
             for (var x = 0; x < secureSelf.configurations.width; x++) {
@@ -454,7 +757,7 @@ var MapHandler = (function(my) {
         }
     }
 
-    var buildRandomWorld = function(map) {
+    var buildRandomWorld = function (map) {
         //And randomly scatter solid blocks
         map = initializeMap(true, map);;
 
@@ -507,7 +810,7 @@ var MapHandler = (function(my) {
         return map;
     };
 
-    var checkMapIsOkey = function(map) {
+    var checkMapIsOkey = function (map) {
         var checkIsMapOkey = false;
         var closedCellCount = 0;
         for (var x = 0; x < map.length; x++) {
@@ -524,11 +827,11 @@ var MapHandler = (function(my) {
         return checkIsMapOkey;
     };
 
-    my.Init = function(options) {
+    my.Init = function (options) {
         secureSelf.initOptions(options);
     };
 
-    my.GenerateMap = function() {
+    my.GenerateMap = function () {
         var tryCount = 0;
         var maxTryCount = 20;
         var isMapOkey = false;
@@ -553,7 +856,7 @@ var MapHandler = (function(my) {
         return mapData;
     };
 
-    my.GetAsCsvData = function(map) {
+    my.GetAsCsvData = function (map) {
         var csvData = "";
         for (var y = 0; y < map[0].length; y++) {
             for (var x = 0; x < map.length; x++) {
@@ -570,4 +873,4 @@ var MapHandler = (function(my) {
     };
 
     return my;
-} (MapHandler || {}));
+}(MapHandler || {}));
