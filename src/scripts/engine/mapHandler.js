@@ -755,7 +755,7 @@ var MapHandler = (function (my) {
                     }
                 }
 
-                //set open flooded areas
+                //set open flooded areass
                 for (var x = 0; x < map.length; x++) {
                     for (var y = 0; y < map[0].length; y++) {
                         if (map[x][y] == secureSelf.worldConfig.floodFillId) {
