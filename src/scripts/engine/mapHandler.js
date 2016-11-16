@@ -176,7 +176,54 @@ var MapHandler = (function (my) {
         for (var x = 0; x < map.length; x++) {
             for (var y = 0; y < map[0].length; y++) {
                 if (map[x] && map[x][y] == secureSelf.worldConfig.fillMapId) {
-                    if (map[x + 1] && map[x - 1]) { }
+                    if (map[x + 1] && map[x - 1]) { 
+                         //Check N
+                        var nNeighbourOfN = getNNeighbour(map, x, y);
+                        var sNeighbourOfN = getSNeighbour(map, x, y);
+                        var numberOfWhiteCellsOfN = countCellsOfType(map,x,y,secureSelf.worldConfig.fillMapId);
+                        if(numberOfWhiteCellsOfN <= 2 && nNeighbourOfN == secureSelf.worldConfig.fillMapId && sNeighbourOfN != secureSelf.worldConfig.openCellId){
+                            map[x][y] = Utils.Random.Int(6, 9);
+                        } 
+
+                        //Check S
+                        var nNeighbourOfS = getNNeighbour(map, x, y);
+                        var sNeighbourOfS = getSNeighbour(map, x, y);
+                        var numberOfWhiteCellsOfS = countCellsOfType(map,x,y,secureSelf.worldConfig.fillMapId);
+                        if(numberOfWhiteCellsOfS <= 2&& sNeighbourOfS == secureSelf.worldConfig.fillMapId && nNeighbourOfS != secureSelf.worldConfig.openCellId){
+                            map[x][y] = Utils.Random.Int(21, 24);
+                        } 
+
+                        //Check W
+                        var wNeighbourOfW = getWNeighbour(map, x, y);
+                        var eNeighbourOfW = getENeighbour(map, x, y);
+                        var numberOfWhiteCellsOfW = countCellsOfType(map,x,y,secureSelf.worldConfig.fillMapId);
+                        if(numberOfWhiteCellsOfW <= 2&& wNeighbourOfW == secureSelf.worldConfig.fillMapId && eNeighbourOfW != secureSelf.worldConfig.openCellId){
+                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
+                        } 
+
+                        //Check E
+                        var wNeighbourOfE = getWNeighbour(map, x, y);
+                        var eNeighbourOfE = getENeighbour(map, x, y);
+                        var numberOfWhiteCellsOfE = countCellsOfType(map,x,y,secureSelf.worldConfig.fillMapId);
+                        if(numberOfWhiteCellsOfE <= 2 && eNeighbourOfE == secureSelf.worldConfig.fillMapId && wNeighbourOfE != secureSelf.worldConfig.openCellId){
+                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
+                        } 
+                        // if (
+                        //     ( //down should be forest
+                        //         sNeighbourOfN == secureSelf.worldConfig.closeCellId ||
+                        //         sNeighbourOfN == secureSelf.worldConfig.closeCellIdX
+                        //     ) && //top should be dirt
+                        //     nNeighbourOfN == secureSelf.worldConfig.openCellId
+
+                        // ) {
+                        //     map[x][y] = Utils.Random.Int(6, 9);
+                        // } else if (typeof sNeighbourOfS == 'undefined' && nNeighbourOfS == secureSelf.worldConfig.openCellId) {
+                        //     map[x][y] = Utils.Random.Int(6, 9);
+                        // }else if (wNeighbourOfN != secureSelf.worldConfig.openCellId && eNeighbourOfN != secureSelf.worldConfig.openCellId && nNeighbourOfN == secureSelf.worldConfig.openCellId ) {
+                            
+                        //}
+
+                    }
                 }
             }
         }
