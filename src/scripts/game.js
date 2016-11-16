@@ -26,6 +26,50 @@ var layer = null;
 var cursors = null;
 var player = null;
 var world = null;
+var fillRate = 100;
+var nextFill = 0;
+var clickRate = 100;
+var nextClick = 0;
+
+
+function floodFill(mapData, x, y, oldVal, newVal) {
+    
+    var chosenTile = mapData.getTile(x, y); 
+    //mapData.putTile(22,chosenTile.x,chosenTile.y,null);
+    oldVal = 0;
+
+
+        var mapWidth = 32,
+            mapHeight = 24;
+
+        if (oldVal == null) {
+            oldVal = mapData.getTile(x,y).index;
+        }
+
+        if (chosenTile.index !== oldVal) {
+            return true;
+        }
+
+        mapData.putTile(newVal,chosenTile.x,chosenTile.y);
+        //mapData[x][y] = newVal;
+
+        if (x > 0) {
+            floodFill(mapData, x - 1, y, oldVal, newVal);
+        }
+
+        if (y > 0) {
+            floodFill(mapData, x, y - 1, oldVal, newVal);
+        }
+
+        if (x < mapWidth - 1) {
+            floodFill(mapData, x + 1, y, oldVal, newVal);
+        }
+
+        if (y < mapHeight - 1) {
+            floodFill(mapData, x, y + 1, oldVal, newVal);
+        }
+    }
+
 
 DGame.Game.prototype = {
 
@@ -41,26 +85,17 @@ DGame.Game.prototype = {
         });
         world = MapHandler.GenerateMap();
         var csvData = MapHandler.GetAsCsvData(world);
-
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
-
         //  Create our map (the 16x16 is the tile size)
         map = this.game.add.tilemap('dynamicMap', 32, 32);
-
         //  'tiles' = cache image key, 16x16 = tile size
         map.addTilesetImage('tiles', 'tiles', 32, 32);
-
         //  Create our layer
         layer = map.createLayer(0);
-
         //  Scroll it
         layer.resizeWorld();
-
-
-
         //layer.debug = true;
-
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
         //  Player
@@ -70,9 +105,6 @@ DGame.Game.prototype = {
         player.animations.add('up', [11, 12, 13], 10, true);
         player.animations.add('down', [4, 5, 6], 10, true);
 
-
-
-
         this.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.setSize(10, 14, 2, 1);
 
@@ -81,7 +113,7 @@ DGame.Game.prototype = {
         cursors = this.input.keyboard.createCursorKeys();
 
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
+        map.setCollision([99,11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
     },
 
     update: function () {
@@ -106,6 +138,16 @@ DGame.Game.prototype = {
         }
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
+        if (this.input.activePointer.isDown)
+        {
+            if (this.time.now > nextClick)
+            {
+                nextClick = this.time.now + clickRate;
+                var chosenTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y,32,32); 
+                floodFill(map,chosenTile.x,chosenTile.y,null,22,layer);             
+            }
+            
+        }
     },
     render: function () {
         //this.game.debug.body(player);

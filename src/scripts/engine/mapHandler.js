@@ -529,9 +529,9 @@ var MapHandler = (function (my) {
                         } else if (typeof nNeighbourOfS == 'undefined' && sNeighbourOfS == secureSelf.worldConfig.openCellId) {
                             map[x][y] = Utils.Random.Int(21, 24);
                         }
-                        else if (wNeighbourOfS != secureSelf.worldConfig.openCellId && eNeighbourOfS != secureSelf.worldConfig.openCellId && sNeighbourOfS == secureSelf.worldConfig.openCellId ) {
-                            map[x][y] = Utils.Random.Int(21, 24);
-                        }
+                        // else if (wNeighbourOfS != secureSelf.worldConfig.openCellId && eNeighbourOfS != secureSelf.worldConfig.openCellId && sNeighbourOfS == secureSelf.worldConfig.openCellId ) {
+                        //     map[x][y] = Utils.Random.Int(21, 24);
+                        // }
 
                         //Check N
                         var nNeighbourOfN = getNNeighbour(map, x, y);
@@ -549,9 +549,9 @@ var MapHandler = (function (my) {
                             map[x][y] = Utils.Random.Int(6, 9);
                         } else if (typeof sNeighbourOfS == 'undefined' && nNeighbourOfS == secureSelf.worldConfig.openCellId) {
                             map[x][y] = Utils.Random.Int(6, 9);
-                        }else if (wNeighbourOfN != secureSelf.worldConfig.openCellId && eNeighbourOfN != secureSelf.worldConfig.openCellId && nNeighbourOfN == secureSelf.worldConfig.openCellId ) {
-                            map[x][y] = Utils.Random.Int(6, 9);
-                        }
+                        }// else if (wNeighbourOfN != secureSelf.worldConfig.openCellId && eNeighbourOfN != secureSelf.worldConfig.openCellId && nNeighbourOfN == secureSelf.worldConfig.openCellId ) {
+                        //     map[x][y] = Utils.Random.Int(6, 9);
+                        // }
 
                         //Check E
                         var nNeighbourOfE = getNNeighbour(map, x, y);
@@ -569,9 +569,9 @@ var MapHandler = (function (my) {
 
                         ) {
                             map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
-                        }else if (nNeighbourOfE != secureSelf.worldConfig.openCellId && sNeighbourOfE != secureSelf.worldConfig.openCellId && eNeighbourOfE == secureSelf.worldConfig.openCellId ) {
-                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
-                        }
+                        }// else if (nNeighbourOfE != secureSelf.worldConfig.openCellId && sNeighbourOfE != secureSelf.worldConfig.openCellId && eNeighbourOfE == secureSelf.worldConfig.openCellId ) {
+                        //     map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeE0 : secureSelf.worldConfig.closeE1;
+                        // }
 
                         //Check W
                         var nNeighbourOfW = getNNeighbour(map, x, y);
@@ -586,9 +586,9 @@ var MapHandler = (function (my) {
                             wNeighbourOfW == secureSelf.worldConfig.openCellId
                         ) {
                             map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
-                        }else if (nNeighbourOfW != secureSelf.worldConfig.openCellId && sNeighbourOfW != secureSelf.worldConfig.openCellId && wNeighbourOfW == secureSelf.worldConfig.openCellId ) {
-                            map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
-                        }
+                        }// else if (nNeighbourOfW != secureSelf.worldConfig.openCellId && sNeighbourOfW != secureSelf.worldConfig.openCellId && wNeighbourOfW == secureSelf.worldConfig.openCellId ) {
+                        //     map[x][y] = Math.random() < 0.5 ? secureSelf.worldConfig.closeW0 : secureSelf.worldConfig.closeW1;
+                        // }
 
 
                     } else {
@@ -756,12 +756,12 @@ var MapHandler = (function (my) {
             }
             tryCount++;
         }
-        if (tryCount >= maxTryCount) {
+        if (tryCount >= maxTryCount) {            
             console.log("yemedi");
         };
         //world is randomized in here 
-        logMap();
-        mapData = fillForest(map);
+        mapData = map;
+        //mapData = fillForest(map);
 
         //And we're done!
         return mapData;
