@@ -26,35 +26,109 @@ var layer = null;
 var cursors = null;
 var player = null;
 var world = null;
-var fillRate = 100;
+var fillRate = 500;
 var nextFill = 0;
 var clickRate = 100;
 var nextClick = 0;
+var started = false;
+var chosenTile = null;
 
+function customFill(x, y) {
+    var mapWidth = 32;
+    var mapHeight = 24;
+
+    map.putTile(22, chosenTile.x, chosenTile.y);
+    for (var i = 0; i < mapWidth; i++) {
+        var put = false;
+        for (var j = 0; j < mapHeight; j++) {
+            var tile = map.getTile(i, j);
+            if (tile.index == 22) {
+                var currX = tile.x;
+                var currY = tile.y;
+                var left = map.getTile(currX - 1, currY);
+                var topLeft = map.getTile(currX - 1, currY - 1);
+                var top = map.getTile(currX, currY - 1);
+                var topRight = map.getTile(currX + 1, currY - 1);
+                var right = map.getTile(currX + 1, currY);
+                var downRight = map.getTile(currX + 1, currY + 1);
+                var down = map.getTile(currX, currY + 1);
+                var downLeft = map.getTile(currX - 1, currY + 1);
+
+                if (left.index == 0) {
+                    map.putTile(22, left.x, left.y);
+                    put = true;
+                    break;
+                }
+                if (topLeft.index == 0) {
+                    map.putTile(22, topLeft.x, topLeft.y);
+                    put = true;
+                    break;
+                }
+                if (top.index == 0) {
+                    map.putTile(22, top.x, top.y);
+                    put = true;
+                    break;
+                }
+                if (topRight.index == 0) {
+                    map.putTile(22, topRight.x, topRight.y);
+                    put = true;
+                    break;
+                }
+                if (right.index == 0) {
+                    map.putTile(22, right.x, right.y);
+                    put = true;
+                    break;
+                }
+                if (downRight.index == 0) {
+                    map.putTile(22, downRight.x, downRight.y);
+                    put = true;
+                    break;
+                }
+                if (down.index == 0) {
+                    map.putTile(22, down.x, down.y);
+                    put = true;
+                    break;
+                }
+                if (downLeft.index == 0) {
+                    map.putTile(22, downLeft.x, downLeft.y);
+                    put = true;
+                    break;
+                }
+            }
+            if (put) {
+                break;
+            }
+        }
+    }
+    //started = false;
+};
 
 function floodFill(mapData, x, y, oldVal, newVal) {
-    
-    var chosenTile = mapData.getTile(x, y); 
-    //mapData.putTile(22,chosenTile.x,chosenTile.y,null);
-    oldVal = 0;
+    setTimeout(function () {
+        var chosenTile = mapData.getTile(x, y);
+        //mapData.putTile(22,chosenTile.x,chosenTile.y,null);
+        oldVal = 0;
 
 
         var mapWidth = 32,
             mapHeight = 24;
 
         if (oldVal == null) {
-            oldVal = mapData.getTile(x,y).index;
+            oldVal = mapData.getTile(x, y).index;
         }
 
         if (chosenTile.index !== oldVal) {
             return true;
         }
 
-        mapData.putTile(newVal,chosenTile.x,chosenTile.y);
+        mapData.putTile(newVal, chosenTile.x, chosenTile.y);
+
         //mapData[x][y] = newVal;
 
         if (x > 0) {
+
             floodFill(mapData, x - 1, y, oldVal, newVal);
+
         }
 
         if (y > 0) {
@@ -68,7 +142,9 @@ function floodFill(mapData, x, y, oldVal, newVal) {
         if (y < mapHeight - 1) {
             floodFill(mapData, x, y + 1, oldVal, newVal);
         }
-    }
+        
+    }, 1000);
+}
 
 
 DGame.Game.prototype = {
@@ -113,7 +189,7 @@ DGame.Game.prototype = {
         cursors = this.input.keyboard.createCursorKeys();
 
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([99,11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
+        map.setCollision([99, 11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
     },
 
     update: function () {
@@ -138,16 +214,22 @@ DGame.Game.prototype = {
         }
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
-        if (this.input.activePointer.isDown)
-        {
-            if (this.time.now > nextClick)
-            {
+        if (this.input.activePointer.isDown) {
+            if (this.time.now > nextClick) {
                 nextClick = this.time.now + clickRate;
-                var chosenTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y,32,32); 
-                floodFill(map,chosenTile.x,chosenTile.y,null,22,layer);             
+                chosenTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 32, 32);
+                setTimeout(function () {
+                    floodFill(map, chosenTile.x, chosenTile.y, null, 22, layer);
+                }, 1000);
+                started = true;
             }
-            
+
         }
+
+        // if (started && this.time.now > nextFill) {
+        //     nextFill = this.time.now + fillRate;
+        //     customFill();
+        // }
     },
     render: function () {
         //this.game.debug.body(player);
