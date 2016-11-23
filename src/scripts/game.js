@@ -22,7 +22,7 @@ DGame.Game = function (game) {
 
     this.gameConfig = {
         flood: {
-            speed: 100
+            speed: 1000
         }
     };
 };
@@ -32,14 +32,37 @@ var layer = null;
 var cursors = null;
 var player = null;
 var world = null;
+var group = null;
 var clickRate = 100;
 var nextClick = 0;
 
 DGame.Game.prototype = {
+    fillForest: function () {
+        for (var i = 0; i < world.length; i++) {
+            for (var j = 0; j < world[0].length; j++) {
+               var currTile = map.getTile(i, j); 
+               if(currTile.index == 1){
+                   group.create(i * 16, (j * 16)-10, 'trees', this.rnd.between(0,2));
+               }
+            }
+        }
+    },
+    fillShrubs: function () {
+        for (var i = 0; i < world.length; i++) {
+            for (var j = 0; j < world[0].length; j++) {
+               var currTile = map.getTile(i, j); 
+               if(currTile.index == 0){
+                   if(this.rnd.between(0,250)<5){
+                       map.putTile(this.rnd.between(3,8),i, j);
+                   }                   
+               }
+            }
+        }
+    },
     floodFill: function (mapData, x, y, oldVal, newVal) {
         var self = this;
         setTimeout(function () {
-            var chosenTile = mapData.getTile(x, y);                        
+            var chosenTile = mapData.getTile(x, y);
             var mapWidth = world.length;
             var mapHeight = world[0].length;
 
@@ -47,7 +70,7 @@ DGame.Game.prototype = {
                 oldVal = mapData.getTile(x, y).index;
             }
 
-            if (chosenTile.index !== oldVal) {
+            if (chosenTile.index !== oldVal ) {
                 return true;
             }
 
@@ -74,8 +97,8 @@ DGame.Game.prototype = {
     create: function () {
 
         MapHandler.Init({
-            width: 32,
-            height: 24,
+            width: 64,
+            height: 48,
             chanceToStartAlive: 0.4,
             birthLimit: 4,
             deathLimit: 3,
@@ -86,22 +109,26 @@ DGame.Game.prototype = {
         //  Add data to the cache
         this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
         //  Create our map (the 16x16 is the tile size)
-        map = this.game.add.tilemap('dynamicMap', 32, 32);
+        map = this.game.add.tilemap('dynamicMap', 16, 16);
         //  'tiles' = cache image key, 16x16 = tile size
-        map.addTilesetImage('tiles', 'tiles', 32, 32);
+        map.addTilesetImage('tiles', 'tiles', 16, 16);
         //  Create our layer
         layer = map.createLayer(0);
+
+        group = this.game.add.group();
         //  Scroll it
         layer.resizeWorld();
         //layer.debug = true;
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
         //  Player
-        player = this.game.add.sprite(48, 48, 'player', 1);
+        player = group.create(48, 48, 'player');
         player.animations.add('left', [8, 9], 10, true);
         player.animations.add('right', [1, 2], 10, true);
         player.animations.add('up', [11, 12, 13], 10, true);
         player.animations.add('down', [4, 5, 6], 10, true);
+
+        group.sort();
 
         this.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.setSize(10, 14, 2, 1);
@@ -110,8 +137,11 @@ DGame.Game.prototype = {
 
         cursors = this.input.keyboard.createCursorKeys();
 
+        this.fillForest(); 
+        this.fillShrubs();       
+
         //  This isn't totally accurate, but it'll do for now
-        map.setCollision([99, 11, 16, 6, 7, 8, 9, 14, 19, 24, 23, 22, 21, 20, 15, 10, 5, 12, 13, 17, 18]);
+        map.setCollision([1]);
     },
 
     update: function () {
@@ -142,11 +172,13 @@ DGame.Game.prototype = {
         if (this.input.activePointer.isDown) {
             if (this.time.now > nextClick) {
                 nextClick = this.time.now + clickRate;
-                var startTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 32, 32);
-                this.floodFill(map, startTile.x, startTile.y, 0, 22);
+                var startTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 16, 16);
+                this.floodFill(map, startTile.x, startTile.y, 0, 2);
             }
 
         }
+
+        group.sort('y', Phaser.Group.SORT_ASCENDING);
     },
     render: function () {
         //this.game.debug.body(player);

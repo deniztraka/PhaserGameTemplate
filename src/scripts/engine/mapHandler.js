@@ -33,8 +33,8 @@ var MapHandler = (function (my) {
             closeCurveSW: 13,
             closeCurveNE: 17,
             closeCurveNW: 18,
-            fillMapId: 99,
-            floodFillId: 30
+            fillMapId: 1,
+            floodFillId: 2
         },
         initOptions: function (options) {
             this.configurations.width = options.width;
@@ -734,6 +734,8 @@ var MapHandler = (function (my) {
             }
         }
 
+        
+
         //random map is generated
         //now trying to shutdown closed areas            
         var openCellFound = false;
@@ -806,6 +808,7 @@ var MapHandler = (function (my) {
         if (tryCount >= maxTryCount) {            
             console.log("yemedi");
         };
+        logMap();
         //world is randomized in here 
         mapData = map;
         //mapData = fillForest(map);
