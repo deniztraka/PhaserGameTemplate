@@ -808,7 +808,7 @@ var MapHandler = (function (my) {
         if (tryCount >= maxTryCount) {            
             console.log("yemedi");
         };
-        logMap();
+        //logMap();
         //world is randomized in here 
         mapData = map;
         //mapData = fillForest(map);
@@ -831,6 +831,26 @@ var MapHandler = (function (my) {
             }
         }
         return csvData;
+    };
+
+    my.CountAliveNeighbours = function (map, x, y,aliveCellIndexArray) {
+        var count = 0;
+        for (var i = -1; i < 2; i++) {
+            for (var j = -1; j < 2; j++) {
+                var nb_x = i + x;
+                var nb_y = j + y;
+                if (i === 0 && j === 0) { }
+                //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
+                else if (nb_x < 0 || nb_y < 0 ||
+                    nb_x >= map.length ||
+                    nb_y >= map[0].length) {
+                    count = count + 1;
+                } else if (aliveCellIndexArray.indexOf(map[nb_x][nb_y]) !=-1) {
+                    count = count + 1;
+                }
+            }
+        }
+        return count;
     };
 
     return my;
