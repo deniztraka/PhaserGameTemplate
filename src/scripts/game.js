@@ -181,7 +181,7 @@ DGame.Game.prototype = {
         map.setCollision([1]);
 
 
-        sprite = new Mobile(this,30,40,'animal');
+        sprite = new Pig(this,30,40);
         
         
         group.add(sprite);

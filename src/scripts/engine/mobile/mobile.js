@@ -10,7 +10,5 @@ Mobile.prototype = Object.create(Phaser.Sprite.prototype);
 Mobile.prototype.constructor = Mobile;
 
 Mobile.prototype.update = function(){
-    //console.log("Mobile update called.");
-     
-    
+   
 };
