@@ -11,5 +11,5 @@ Mobile.prototype.constructor = Mobile;
 
 Mobile.prototype.update = function(){
     //console.log("Mobile update called.");
-    this.game.physics.arcade.moveToXY(this, 100, 100);
+    //this.game.physics.arcade.moveToXY(this, 100, 100);
 };
