@@ -36,17 +36,31 @@ var group = null;
 var clickRate = 100;
 var nextClick = 0;
 var animal = null;
+var pathfinder = null;
+var startTile = null;
 
 DGame.Game.prototype = {
+    findPathTo: function (tilex, tiley) {
+        pathfinder.setCallbackFunction(function (path) {
+            path = path || [];
+            for (var i = 0, ilen = path.length; i < ilen; i++) {
+                map.putTile(46, path[i].x, path[i].y);
+            }
+            blocked = false;
+        });
+
+        pathfinder.preparePathCalculation([startTile.x, startTile.y], [tilex, tiley]);
+        pathfinder.calculatePath();
+    },
     placeTreasure: function (world, treasureHiddenLimit) {
         //How hidden does a spot need to be for treasure?
         //I find treasureHiddenLimit 5 or 6 is good. 6 for very rare treasure.        
         for (var x = 0; x < world.length; x++) {
             for (var y = 0; y < world[0].length; y++) {
                 if (world[x][y] == 0) {
-                    var nbs = MapHandler.CountAliveNeighbours(world, x, y,[0,3,4,5,6,7,8,9,10,11]);
+                    var nbs = MapHandler.CountAliveNeighbours(world, x, y, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
                     if (nbs <= treasureHiddenLimit) {
-                        map.putTile(99,x, y);                        
+                        map.putTile(99, x, y);
                     }
                 }
             }
@@ -57,34 +71,34 @@ DGame.Game.prototype = {
     fillForest: function () {
         for (var i = 0; i < world.length; i++) {
             for (var j = 0; j < world[0].length; j++) {
-               var currTile = map.getTile(i, j); 
-               if(currTile.index == 1){
-                   group.create(i * 16, (j * 16)-10, 'trees', this.rnd.between(0,2));
-               }
+                var currTile = map.getTile(i, j);
+                if (currTile.index == 1) {
+                    group.create(i * 16, (j * 16) - 10, 'trees', this.rnd.between(0, 2));
+                }
             }
         }
     },
     fillShrubs: function () {
         for (var i = 0; i < world.length; i++) {
             for (var j = 0; j < world[0].length; j++) {
-               var currTile = map.getTile(i, j); 
-               if(currTile.index == 0){
-                   if(this.rnd.between(0,250)<5){
-                       map.putTile(this.rnd.between(3,8),i, j);
-                   }                   
-               }
+                var currTile = map.getTile(i, j);
+                if (currTile.index == 0) {
+                    if (this.rnd.between(0, 250) < 5) {
+                        map.putTile(this.rnd.between(3, 8), i, j);
+                    }
+                }
             }
         }
     },
     fillGrass: function () {
         for (var i = 0; i < world.length; i++) {
             for (var j = 0; j < world[0].length; j++) {
-               var currTile = map.getTile(i, j); 
-               if(currTile.index == 0){
-                   if(this.rnd.between(0,25)<5){
-                       map.putTile(this.rnd.between(9,11),i, j);
-                   }                   
-               }
+                var currTile = map.getTile(i, j);
+                if (currTile.index == 0) {
+                    if (this.rnd.between(0, 25) < 5) {
+                        map.putTile(this.rnd.between(9, 11), i, j);
+                    }
+                }
             }
         }
     },
@@ -99,15 +113,15 @@ DGame.Game.prototype = {
                 oldVal = mapData.getTile(x, y).index;
             }
 
-            var floorDetailsIndexArray = [3,4,5,6,7,8,9,10,11];
+            var floorDetailsIndexArray = [3, 4, 5, 6, 7, 8, 9, 10, 11];
             if (floorDetailsIndexArray.indexOf(chosenTile.index) !== -1) {
-               mapData.putTile(newVal, chosenTile.x, chosenTile.y);
-            }else
-            if (chosenTile.index !== oldVal ) {
+                mapData.putTile(newVal, chosenTile.x, chosenTile.y);
+            } else
+            if (chosenTile.index !== oldVal) {
                 return true;
-            } 
+            }
 
-            
+
 
             mapData.putTile(newVal, chosenTile.x, chosenTile.y);
 
@@ -163,7 +177,7 @@ DGame.Game.prototype = {
         player.animations.add('up', [11, 12, 13], 10, true);
         player.animations.add('down', [4, 5, 6], 10, true);
 
-        
+
 
         this.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.setSize(10, 14, 2, 1);
@@ -172,18 +186,21 @@ DGame.Game.prototype = {
 
         cursors = this.input.keyboard.createCursorKeys();
 
-        this.fillForest(); 
+        this.fillForest();
         this.fillShrubs();
-        this.fillGrass(); 
+        this.fillGrass();
         //this.placeTreasure(world,3);      
 
         //  This isn't totally accurate, but it'll do for now
         map.setCollision([1]);
 
+        pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+        pathfinder.setGrid(map.layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
-        sprite = new Pig(this,30,40);
-        
-        
+
+        sprite = new Pig(this, 30, 40);
+
+
         group.add(sprite);
         group.sort();
     },
@@ -218,13 +235,14 @@ DGame.Game.prototype = {
                 nextClick = this.time.now + clickRate;
                 var startTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 16, 16);
                 this.floodFill(map, startTile.x, startTile.y, 0, 2);
+                
             }
 
         }
 
         group.sort('y', Phaser.Group.SORT_ASCENDING);
     },
-    render: function () {       
+    render: function () {
         for (var y = 0; y < world[0].length; y++) {
             for (var x = 0; x < world.length; x++) {
                 //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y,0), (x*32)+8, (y*32)+12);
