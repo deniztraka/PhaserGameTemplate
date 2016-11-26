@@ -67,41 +67,7 @@ DGame.Game.prototype = {
         }
 
         return world;
-    },
-    fillForest: function () {
-        for (var i = 0; i < world.length; i++) {
-            for (var j = 0; j < world[0].length; j++) {
-                var currTile = map.getTile(i, j);
-                if (currTile.index == 1) {
-                    group.create(i * 16, (j * 16) - 10, 'trees', this.rnd.between(0, 2));
-                }
-            }
-        }
-    },
-    fillShrubs: function () {
-        for (var i = 0; i < world.length; i++) {
-            for (var j = 0; j < world[0].length; j++) {
-                var currTile = map.getTile(i, j);
-                if (currTile.index == 0) {
-                    if (this.rnd.between(0, 250) < 5) {
-                        map.putTile(this.rnd.between(3, 8), i, j);
-                    }
-                }
-            }
-        }
-    },
-    fillGrass: function () {
-        for (var i = 0; i < world.length; i++) {
-            for (var j = 0; j < world[0].length; j++) {
-                var currTile = map.getTile(i, j);
-                if (currTile.index == 0) {
-                    if (this.rnd.between(0, 25) < 5) {
-                        map.putTile(this.rnd.between(9, 11), i, j);
-                    }
-                }
-            }
-        }
-    },
+    },    
     floodFill: function (mapData, x, y, oldVal, newVal) {
         var self = this;
         setTimeout(function () {

@@ -2,7 +2,7 @@ var NuhMapHandler = (function (my) {
     var map = null;
     var game = null;
     var layer = null;
-    var group = null;
+    var forestGroup = null;
 
     var selfConfig = {
 
@@ -34,11 +34,11 @@ var NuhMapHandler = (function (my) {
         layer = map.createLayer(0);
         layer.resizeWorld();
         // create our group
-        group = game.add.group();
+        forestGroup = game.add.group();
 
-        my.Builder.Init(game, map, layer, group);
+        my.Builder.Init(game, map, layer, forestGroup);
 
-        group.sort();
+        forestGroup.sort();
     };
 
     my.Map = function () {
@@ -46,7 +46,7 @@ var NuhMapHandler = (function (my) {
     }
 
     my.Update = function () {
-        group.sort('y', Phaser.Group.SORT_ASCENDING);
+        forestGroup.sort('y', Phaser.Group.SORT_ASCENDING);
     };
 
     return my;
@@ -56,7 +56,7 @@ NuhMapHandler.Builder = (function (my, parent) {
     var map = null;
     var game = null;
     var layer = null;
-    var group = null;
+    var forestGroup = null;
 
     my.FillForest = function () {
         //trees
@@ -64,7 +64,7 @@ NuhMapHandler.Builder = (function (my, parent) {
             for (var j = 0; j < map.height; j++) {
                 var currTile = map.getTile(i, j);
                 if (currTile.index == 1) {
-                    group.create(i * 16, (j * 16) - 10, 'trees', game.rnd.between(0, 2));
+                    forestGroup.create(i * 16, (j * 16) - 10, 'trees', game.rnd.between(0, 2));
                 }
             }
         }
@@ -98,7 +98,7 @@ NuhMapHandler.Builder = (function (my, parent) {
         map = pMap;
         game = pGame;
         layer = pLayer;
-        group = pGroup;
+        forestGroup = pGroup;
     };
 
     return my;
