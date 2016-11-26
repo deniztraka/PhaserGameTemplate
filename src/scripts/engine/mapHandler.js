@@ -13,26 +13,7 @@ var MapHandler = (function (my) {
         },
         worldConfig: {
             openCellId: 0,
-            closeCellId: 11,
-            closeCellIdX: 16,
-            closeN0: 6,
-            closeN1: 7,
-            closeN2: 8,
-            closeNE: 9,
-            closeE0: 14,
-            closeE1: 19,
-            closeSE: 24,
-            closeS0: 23,
-            closeS1: 22,
-            closeS2: 21,
-            closeSW: 20,
-            closeW0: 15,
-            closeW1: 10,
-            closeNW: 5,
-            closeCurveSE: 12,
-            closeCurveSW: 13,
-            closeCurveNE: 17,
-            closeCurveNW: 18,
+            
             fillMapId: 1,
             floodFillId: 2
         },
@@ -66,32 +47,8 @@ var MapHandler = (function (my) {
             }
         }
         return map;
-    };
+    };    
 
-    my.ClosedNeighbourCount = function (map, x, y, id) {
-
-        return typeof id == 'undefined' ? countAliveNeighbours(map, x, y) : countCellsOfType(map, x, y, id);
-    };
-
-    var countCellsOfType = function (map, x, y, id) {
-        var count = 0;
-        for (var i = -1; i < 2; i++) {
-            for (var j = -1; j < 2; j++) {
-                var nb_x = i + x;
-                var nb_y = j + y;
-                if (i === 0 && j === 0) { }
-                //If it's at the edges, consider it to be solid (you can try removing the count = count + 1)
-                else if (nb_x < 0 || nb_y < 0 ||
-                    nb_x >= map.length ||
-                    nb_y >= map[0].length) {
-                    count = count + 1;
-                } else if (map[nb_x][nb_y] === id) {
-                    count = count + 1;
-                }
-            }
-        }
-        return count;
-    };
     var countAliveNeighbours = function (map, x, y) {
         var count = 0;
         for (var i = -1; i < 2; i++) {

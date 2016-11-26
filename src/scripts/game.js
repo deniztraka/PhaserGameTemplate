@@ -176,23 +176,14 @@ DGame.Game.prototype = {
         player.animations.add('right', [1, 2], 10, true);
         player.animations.add('up', [11, 12, 13], 10, true);
         player.animations.add('down', [4, 5, 6], 10, true);
-
-
-
         this.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.setSize(10, 14, 2, 1);
-
         this.camera.follow(player);
 
-        cursors = this.input.keyboard.createCursorKeys();
+        cursors = this.input.keyboard.createCursorKeys();     
 
-        this.fillForest();
-        this.fillShrubs();
-        this.fillGrass();
-        //this.placeTreasure(world,3);      
-
-        //  This isn't totally accurate, but it'll do for now
-        map.setCollision([1]);
+        NuhMapHandler.Init(this,map);
+        NuhMapHandler.Builder.FillForest(group);       
 
         pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
         pathfinder.setGrid(map.layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
