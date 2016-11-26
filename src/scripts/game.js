@@ -155,93 +155,84 @@ DGame.Game.prototype = {
         });
         world = MapHandler.GenerateMap();
         var csvData = MapHandler.GetAsCsvData(world);
-        //  Add data to the cache
-        this.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
-        //  Create our map (the 16x16 is the tile size)
-        map = this.game.add.tilemap('dynamicMap', 16, 16);
-        //  'tiles' = cache image key, 16x16 = tile size
-        map.addTilesetImage('tiles', 'tiles', 16, 16);
-        //  Create our layer
-        layer = map.createLayer(0);
-
-        group = this.game.add.group();
-        //  Scroll it
-        layer.resizeWorld();
+        
+        NuhMapHandler.Init(this,csvData);
+        NuhMapHandler.Builder.FillForest();
+        
         //layer.debug = true;
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
-        //  Player
-        player = group.create(48, 48, 'player');
-        player.animations.add('left', [8, 9], 10, true);
-        player.animations.add('right', [1, 2], 10, true);
-        player.animations.add('up', [11, 12, 13], 10, true);
-        player.animations.add('down', [4, 5, 6], 10, true);
-        this.physics.enable(player, Phaser.Physics.ARCADE);
-        player.body.setSize(10, 14, 2, 1);
-        this.camera.follow(player);
+        // //  Player
+        // player = group.create(48, 48, 'player');
+        // player.animations.add('left', [8, 9], 10, true);
+        // player.animations.add('right', [1, 2], 10, true);
+        // player.animations.add('up', [11, 12, 13], 10, true);
+        // player.animations.add('down', [4, 5, 6], 10, true);
+        // this.physics.enable(player, Phaser.Physics.ARCADE);
+        // player.body.setSize(10, 14, 2, 1);
+        // this.camera.follow(player);
 
-        cursors = this.input.keyboard.createCursorKeys();     
+        // cursors = this.input.keyboard.createCursorKeys();     
 
-        NuhMapHandler.Init(this,map);
-        NuhMapHandler.Builder.FillForest(group);       
+               
 
-        pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-        pathfinder.setGrid(map.layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-
-
-        sprite = new Pig(this, 30, 40);
+        // pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+        // pathfinder.setGrid(map.layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 
-        group.add(sprite);
-        group.sort();
+        //sprite = new Pig(this, 30, 40);
+
+
+        //group.add(sprite);
+        //group.sort();
     },
 
     update: function () {
-        this.physics.arcade.collide(player, layer);
+        // this.physics.arcade.collide(player, layer);
 
-        player.body.velocity.set(0);
+        // player.body.velocity.set(0);
 
-        if (cursors.left.isDown) {
-            player.body.velocity.x = -100;
-            player.play('left');
-        } else if (cursors.right.isDown) {
-            player.body.velocity.x = 100;
-            player.play('right');
-        } else if (cursors.up.isDown) {
-            player.body.velocity.y = -100;
-            player.play('up');
-        } else if (cursors.down.isDown) {
-            player.body.velocity.y = 100;
-            player.play('down');
-        } else {
-            player.animations.stop();
-        }
+        // if (cursors.left.isDown) {
+        //     player.body.velocity.x = -100;
+        //     player.play('left');
+        // } else if (cursors.right.isDown) {
+        //     player.body.velocity.x = 100;
+        //     player.play('right');
+        // } else if (cursors.up.isDown) {
+        //     player.body.velocity.y = -100;
+        //     player.play('up');
+        // } else if (cursors.down.isDown) {
+        //     player.body.velocity.y = 100;
+        //     player.play('down');
+        // } else {
+        //     player.animations.stop();
+        // }
         //	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
 
 
         //Just for debugging to start flood
-        if (this.input.activePointer.isDown) {
-            if (this.time.now > nextClick) {
-                nextClick = this.time.now + clickRate;
-                var startTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 16, 16);
-                this.floodFill(map, startTile.x, startTile.y, 0, 2);
+        // if (this.input.activePointer.isDown) {
+        //     if (this.time.now > nextClick) {
+        //         nextClick = this.time.now + clickRate;
+        //         var startTile = map.getTileWorldXY(this.input.activePointer.x, this.input.activePointer.y, 16, 16);
+        //         this.floodFill(map, startTile.x, startTile.y, 0, 2);
                 
-            }
+        //     }
 
-        }
+        // }
 
-        group.sort('y', Phaser.Group.SORT_ASCENDING);
+        NuhMapHandler.Update();
     },
     render: function () {
-        for (var y = 0; y < world[0].length; y++) {
-            for (var x = 0; x < world.length; x++) {
-                //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y,0), (x*32)+8, (y*32)+12);
-                //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y), (x*32)+8, (y*32)+12);
-                //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);
-                //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);                
-            }
-        }
+        // for (var y = 0; y < world[0].length; y++) {
+        //     for (var x = 0; x < world.length; x++) {
+        //         //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y,0), (x*32)+8, (y*32)+12);
+        //         //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y), (x*32)+8, (y*32)+12);
+        //         //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);
+        //         //this.game.debug.text(world[x][y], (x*32)+8, (y*32)+26);                
+        //     }
+        // }
     }
 
 };
