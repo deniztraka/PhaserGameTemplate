@@ -138,7 +138,7 @@ NuhMapHandler.Mobiles = (function (my, parent) {
     var map = null;
     var mobilesGroup = null;
     var allGroups = null;
-    var maxAnimalNumber = 10;
+    var maxAnimalNumber = 20;
 
     var createAnimals = function (animalHiddenLimit) {
         var hiddenSpots = [];
@@ -172,14 +172,25 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         for (var i = 0; i < hiddenSpots.length; i++) {
 
             if (spawnedAnimalNumber < hiddenSpots.length && spawnedAnimalNumber < maxAnimalNumber) {
-                if(game.rnd.between(0, 1)==1){
-                    var cat = new Cat(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);                
-                    mobilesGroup.add(cat);
-                }else{
-                    var chicken = new Chicken(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);                
-                    mobilesGroup.add(chicken);
+                switch (game.rnd.between(0, 3)) {
+                    case 0:
+                        var cat = new Cat(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(cat);
+                        break;
+                    case 1:
+                        var chicken = new Chicken(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(chicken);
+                        break;
+                    case 2:
+                        var bunny = new Bunny(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(bunny);
+                        break;
+                    case 3:
+                        var frog = new Frog(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(frog);
+                        break;
                 }
-                
+
                 spawnedAnimalNumber++
             }
         }
@@ -225,7 +236,7 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         }
 
         return neighbours[game.rnd.between(0, neighbours.length - 1)];
-    }    
+    }
 
     my.FindPathTo = function (mobile, destinationTile, callBackFunction) {
         var selfMap = map;

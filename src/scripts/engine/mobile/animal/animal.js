@@ -41,8 +41,6 @@ Animal.prototype.moveToTile = function (path, animal) {
 
 Animal.prototype.update = function () {
     //console.log("Mobile update called.");
-
-
     if (Math.floor(Math.random() * 1000) === 0 && this.lastMoveTime + this.idleMovementRate < this.game.time.now) {
         var self = this;
         var neighbourTile = NuhMapHandler.Mobiles.GetRandomNeighbour(this);

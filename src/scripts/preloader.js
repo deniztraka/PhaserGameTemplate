@@ -17,6 +17,8 @@ DGame.Preloader.prototype = {
 		this.load.image('pig', 'assets/img/tiles/agac3.png', 16, 16);
 		this.load.spritesheet('cat', 'assets/img/spritesheets/animals/cat.png', 16, 16);
 		this.load.spritesheet('chicken', 'assets/img/spritesheets/animals/chicken.png', 16, 16);
+		this.load.spritesheet('bunny', 'assets/img/spritesheets/animals/bunny.png', 16, 16);
+		this.load.spritesheet('frog', 'assets/img/spritesheets/animals/frog.png', 16, 16);
 	},
 	create: function () {
 		this.preloadBar.cropEnabled = false;
