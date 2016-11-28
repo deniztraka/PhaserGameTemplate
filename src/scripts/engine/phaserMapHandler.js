@@ -172,8 +172,14 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         for (var i = 0; i < hiddenSpots.length; i++) {
 
             if (spawnedAnimalNumber < hiddenSpots.length && spawnedAnimalNumber < maxAnimalNumber) {
-                var pig = new Pig(game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
-                mobilesGroup.add(pig);
+                if(game.rnd.between(0, 1)==1){
+                    var cat = new Cat(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);                
+                    mobilesGroup.add(cat);
+                }else{
+                    var chicken = new Chicken(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);                
+                    mobilesGroup.add(chicken);
+                }
+                
                 spawnedAnimalNumber++
             }
         }
@@ -219,35 +225,12 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         }
 
         return neighbours[game.rnd.between(0, neighbours.length - 1)];
-    }
+    }    
 
-    var moveSprite= function(mobile, worldX, worldY) {    
-        //if (tween && tween.isRunning)    
-        //{        
-        //    tween.stop();    
-        //}    
-        //this.player.rotation = game.physics.angleToPointer(this.player, pointer);
-
-    //  300 = 300 pixels per second = the speed the sprite will move at, regardless of the distance it has to travel    
-        //var duration = (game.physics.distanceToPointer(this.player, pointer) / 300) * 1000;    
-        game.add.tween(mobile).to({ x: worldX, y: worldY }, 1000, Phaser.Easing.Linear.None, true)
-    ;}
-
-    my.FindPathTo = function (mobile, destinationTile) {
+    my.FindPathTo = function (mobile, destinationTile, callBackFunction) {
         var selfMap = map;
         var startTile = map.getTileWorldXY(mobile.x, mobile.y);
-        pathfinder.setCallbackFunction(function (path) {
-            path = path || [];
-            for (var i = 1, ilen = path.length; i < ilen; i++) {
-                var currentDestinationTile = selfMap.getTile(path[i].x, path[i].y);
-                //if (mobile.x != currentDestinationTile.worldX + 8 && mobile.y != currentDestinationTile.worldY + 8) {
-                    //game.physics.arcade.moveToXY(mobile, currentDestinationTile.worldX + 8, currentDestinationTile.worldY + 8);
-                    moveSprite(mobile,currentDestinationTile.worldX + 8,currentDestinationTile.worldY + 8);
-                //}
-                //map.putTile(46, path[i].x, path[i].y);
-            }
-            blocked = false;
-        });
+        pathfinder.setCallbackFunction(callBackFunction);
 
         pathfinder.preparePathCalculation([startTile.x, startTile.y], [destinationTile.x, destinationTile.y]);
         pathfinder.calculatePath();
