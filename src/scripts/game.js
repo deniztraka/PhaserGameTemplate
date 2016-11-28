@@ -124,6 +124,7 @@ DGame.Game.prototype = {
         
         NuhMapHandler.Init(this,csvData);
         NuhMapHandler.Builder.FillForest();
+        NuhMapHandler.Mobiles.CreateAnimals();
         
         //layer.debug = true;
         this.physics.startSystem(Phaser.Physics.ARCADE);
@@ -142,15 +143,15 @@ DGame.Game.prototype = {
 
                
 
-        // pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-        // pathfinder.setGrid(map.layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+         pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+         pathfinder.setGrid(NuhMapHandler.Map().layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 
         //sprite = new Pig(this, 30, 40);
 
 
         //group.add(sprite);
-        //group.sort();
+        //group.sort();        
     },
 
     update: function () {
