@@ -7,6 +7,8 @@ function Animal(game, x, y, texture) {
     this.speechChance = 1000;
     this.idleMovementRate = 1000;
     this.movementChance = 1000;
+
+    this.point = 0;
 }
 
 Animal.prototype = Object.create(Mobile.prototype);

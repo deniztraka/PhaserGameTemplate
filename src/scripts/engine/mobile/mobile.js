@@ -15,5 +15,11 @@ Mobile.prototype = Object.create(Phaser.Sprite.prototype);
 Mobile.prototype.constructor = Mobile;
 
 Mobile.prototype.update = function(){
-   
+    
+};
+
+Mobile.prototype.render = function () {
+       
+    console.log("asd");    
+    this.game.debug.spriteBounds(this);
 };

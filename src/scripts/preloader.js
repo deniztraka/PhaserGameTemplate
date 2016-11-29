@@ -13,12 +13,14 @@ DGame.Preloader.prototype = {
 
 		this.load.image('tiles', 'assets/img/tiles/EasyTiles.png');
 		this.load.spritesheet('trees', 'assets/img/spritesheets/EasyTiles_Trees_16x32.png', 16, 32);
-		this.load.spritesheet('player', 'assets/img/spritesheets/spaceman.png', 16, 16);
+		this.load.spritesheet('player', 'assets/img/spritesheets/player32.png', 32, 32);
 		this.load.image('pig', 'assets/img/tiles/agac3.png', 16, 16);
 		this.load.spritesheet('cat', 'assets/img/spritesheets/animals/cat.png', 16, 16);
 		this.load.spritesheet('chicken', 'assets/img/spritesheets/animals/chicken.png', 16, 16);
 		this.load.spritesheet('bunny', 'assets/img/spritesheets/animals/bunny.png', 16, 16);
 		this.load.spritesheet('frog', 'assets/img/spritesheets/animals/frog.png', 16, 16);
+		this.load.spritesheet('tiger', 'assets/img/spritesheets/animals/tiger.png', 16, 16);
+		this.load.spritesheet('lion', 'assets/img/spritesheets/animals/lion.png', 16, 16);
 		this.load.spritesheet('bubble-border', 'assets/img/spritesheets/speech.png',9, 9);
 		this.load.image('bubble-tail', 'assets/img/spritesheets/bubbleTrail.png');
 

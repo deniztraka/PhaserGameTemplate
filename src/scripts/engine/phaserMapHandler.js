@@ -1,7 +1,7 @@
 var NuhMapHandler = (function (my) {
     var map = null;
     var game = null;
-    var layer = null;
+    my.layer = null;
     var forestGroup = null;
     var allGroups = null;
 
@@ -31,13 +31,13 @@ var NuhMapHandler = (function (my) {
         map.setCollision(selfConfig.world.tiles.indexes.trees);
 
         //  Create our layer and scroll it
-        layer = map.createLayer(0);
-        layer.resizeWorld();
+        my.layer = map.createLayer(0);
+        my.layer.resizeWorld();
         // create our group
 
         allGroups = game.add.group();
 
-        my.Builder.Init(game, map, layer, allGroups);
+        my.Builder.Init(game, map, my.layer, allGroups);
         my.Mobiles.Init(game, map, allGroups);
 
         allGroups.sort();
@@ -132,13 +132,16 @@ NuhMapHandler.Builder = (function (my, parent) {
 }(NuhMapHandler.Builder || {}, NuhMapHandler));
 
 NuhMapHandler.Mobiles = (function (my, parent) {
-
+    var player = null;
+    my.layer = null;
     var pathFinder = null;
     var game = null;
     var map = null;
     var mobilesGroup = null;
     var allGroups = null;
     var maxAnimalNumber = 20;
+
+    my.Player = null;
 
     var createAnimals = function (animalHiddenLimit) {
         var hiddenSpots = [];
@@ -172,7 +175,7 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         for (var i = 0; i < hiddenSpots.length; i++) {
 
             if (spawnedAnimalNumber < hiddenSpots.length && spawnedAnimalNumber < maxAnimalNumber) {
-                switch (game.rnd.between(0, 3)) {
+                switch (game.rnd.between(0, 5)) {
                     case 0:
                         var cat = new Cat(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
                         mobilesGroup.add(cat);
@@ -189,6 +192,14 @@ NuhMapHandler.Mobiles = (function (my, parent) {
                         var frog = new Frog(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
                         mobilesGroup.add(frog);
                         break;
+                    case 4:
+                        var tiger = new Tiger(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(tiger);
+                        break;
+                    case 5:
+                        var lion = new Lion(game.game, hiddenSpots[i].worldX + hiddenSpots[i].width / 2, hiddenSpots[i].worldY + hiddenSpots[i].height / 2);
+                        mobilesGroup.add(lion);
+                        break;
                 }
 
                 spawnedAnimalNumber++
@@ -196,17 +207,21 @@ NuhMapHandler.Mobiles = (function (my, parent) {
         }
     };
 
-    my.Init = function (pGame, pMap, pAllGroups, pPathfinder) {
+    my.Init = function (pGame, pMap, pAllGroups) {
         map = pMap;
         game = pGame;
         allGroups = pAllGroups;
-        pathfinder = pPathfinder;
         mobilesGroup = game.add.group();
         allGroups.add(mobilesGroup);
     };
 
     my.CreateAnimals = function () {
         createAnimals(3);
+    };
+
+    my.CreatePlayer = function () {
+        player = new Player(game.game, 160, 160);  
+        my.Player = player;      
     };
 
     my.GetRandomNeighbour = function (mobile) {

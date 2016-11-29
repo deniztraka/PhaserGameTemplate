@@ -39,19 +39,7 @@ var animal = null;
 var pathfinder = null;
 var startTile = null;
 
-DGame.Game.prototype = {
-    findPathTo: function (tilex, tiley) {
-        pathfinder.setCallbackFunction(function (path) {
-            path = path || [];
-            for (var i = 0, ilen = path.length; i < ilen; i++) {
-                map.putTile(46, path[i].x, path[i].y);
-            }
-            blocked = false;
-        });
-
-        pathfinder.preparePathCalculation([startTile.x, startTile.y], [tilex, tiley]);
-        pathfinder.calculatePath();
-    },
+DGame.Game.prototype = {    
     placeTreasure: function (world, treasureHiddenLimit) {
         //How hidden does a spot need to be for treasure?
         //I find treasureHiddenLimit 5 or 6 is good. 6 for very rare treasure.        
@@ -123,8 +111,10 @@ DGame.Game.prototype = {
         var csvData = MapHandler.GetAsCsvData(world);
         
         NuhMapHandler.Init(this,csvData);
-        NuhMapHandler.Builder.FillForest();
+        NuhMapHandler.Builder.FillForest();        
         NuhMapHandler.Mobiles.CreateAnimals();
+        NuhMapHandler.Mobiles.CreatePlayer();
+        
         
         //layer.debug = true;
         this.physics.startSystem(Phaser.Physics.ARCADE);
@@ -192,6 +182,7 @@ DGame.Game.prototype = {
         NuhMapHandler.Update();
     },
     render: function () {
+        //this.game.debug.spriteBounds(NuhMapHandler.Mobiles.Player);
         // for (var y = 0; y < world[0].length; y++) {
         //     for (var x = 0; x < world.length; x++) {
         //         //this.game.debug.text(MapHandler.ClosedNeighbourCount(world,x,y,0), (x*32)+8, (y*32)+12);
