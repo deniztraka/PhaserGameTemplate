@@ -2,7 +2,11 @@ function Animal(game, x, y, texture) {
     Mobile.call(this, game, x, y, texture);
     this.destinationXY = [];
     this.lastMoveTime = game.time.now;
+    this.lastSpeechTime = game.time.now;
+    this.speechRate = 1000;
+    this.speechChance = 1000;
     this.idleMovementRate = 1000;
+    this.movementChance = 1000;
 }
 
 Animal.prototype = Object.create(Mobile.prototype);
@@ -32,7 +36,7 @@ Animal.prototype.moveToTile = function (path, animal) {
         var self = this;
         animal.lastMoveTime = animal.game.time.now;
         var tween = animal.game.add.tween(animal).to({ x: currentDestinationTile.worldX + 8, y: currentDestinationTile.worldY + 8 }, this.idleMovementRate, Phaser.Easing.Linear.None, true);
-        tween.onComplete.add(function(){
+        tween.onComplete.add(function () {
             self.animations.stop();
         });
     }
@@ -40,15 +44,32 @@ Animal.prototype.moveToTile = function (path, animal) {
 }
 
 Animal.prototype.update = function () {
-    //console.log("Mobile update called.");
-    if (Math.floor(Math.random() * 1000) === 0 && this.lastMoveTime + this.idleMovementRate < this.game.time.now) {
+    //Idle movement implementation
+    if (Math.floor(Math.random() * this.movementChance) === 0 && this.lastMoveTime + this.idleMovementRate < this.game.time.now) {
         var self = this;
         var neighbourTile = NuhMapHandler.Mobiles.GetRandomNeighbour(this);
+        var tileEmpty = true;
+
         if (neighbourTile) {
-            //console.log(NuhMapHandler.Mobiles.GetRandomNeighbour(this));            
-            NuhMapHandler.Mobiles.FindPathTo(this, neighbourTile, function (path) {
-                self.moveToTile(path, self)
-            });
+            self.parent.forEachAlive(function (animal) {
+                var currentTile = animal.getTile();
+                if (currentTile.x == neighbourTile.x && currentTile.y == neighbourTile.y) {
+                    tileEmpty = false;
+                    //console.log("cant walk");
+                }
+            }, this);
+            //console.log("can walk"); 
+            if (tileEmpty) {
+                NuhMapHandler.Mobiles.FindPathTo(this, neighbourTile, function (path) {
+                    self.moveToTile(path, self)
+                });
+            }
         }
-    }
+    }  
+
+    //speech implementation    
+    if (Math.floor(Math.random() * this.speechChance) === 0 && this.lastSpeechTime + this.speechRate < this.game.time.now) {
+        var bubble = this.game.world.add(new SpeechBubble(this.game, this.x, this.y, null, this,this.speechText));
+        //this.addChild(bubble);
+    }      
 };
