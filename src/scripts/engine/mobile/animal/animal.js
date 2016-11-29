@@ -1,5 +1,6 @@
 function Animal(game, x, y, texture) {
     Mobile.call(this, game, x, y, texture);
+    var self = this;
     this.destinationXY = [];
     this.lastMoveTime = game.time.now;
     this.lastSpeechTime = game.time.now;
@@ -9,6 +10,11 @@ function Animal(game, x, y, texture) {
     this.movementChance = 1000;
 
     this.point = 0;
+
+    this.hitPlayer = function(player){
+        player.addPoint(self.point);
+        self.destroy();
+    };
 }
 
 Animal.prototype = Object.create(Mobile.prototype);
@@ -73,5 +79,8 @@ Animal.prototype.update = function () {
     if (Math.floor(Math.random() * this.speechChance) === 0 && this.lastSpeechTime + this.speechRate < this.game.time.now) {
         var bubble = this.game.world.add(new SpeechBubble(this.game, this.x, this.y, null, this,this.speechText));
         //this.addChild(bubble);
-    }      
+    }    
+
+    this.game.physics.arcade.collide(NuhMapHandler.Mobiles.Player, this, this.hitPlayer);
+      
 };

@@ -6,26 +6,18 @@ function Player(game, x, y) {
     this.animations.add('up', [0, 1, 2, 3, 4, 5, 6, 7, 8], 10, true);
     this.animations.add('right', [27, 28, 29, 30, 31, 32, 33, 34], 10, true);
 
+    this.score = 0;
+    this.addPoint = function(point){
+        this.score += point;        
+    };
 
     game.physics.enable(this, Phaser.Physics.ARCADE);
-    game.camera.follow(this);
-    //this.body.setSize(10, 14, 2, 1);
-    //// Player
-    //// player = group.create(48, 48, 'player');
-    //// player.animations.add('left', [8, 9], 10, true);
-    //// player.animations.add('right', [1, 2], 10, true);
-    //// player.animations.add('up', [11, 12, 13], 10, true);
-    //// player.animations.add('down', [4, 5, 6], 10, true);
-    //// this.physics.enable(player, Phaser.Physics.ARCADE);
+    game.camera.follow(this);   
     this.body.setSize(15, 15, 8, 16);
-    //// this.camera.follow(player);
-    
-        
 }
 
 Player.prototype = Object.create(Mobile.prototype);
 Player.prototype.constructor = Player;
-
 
 Player.prototype.update = function () {
     Mobile.prototype.update.call();
