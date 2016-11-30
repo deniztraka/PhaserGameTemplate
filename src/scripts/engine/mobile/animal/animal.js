@@ -13,7 +13,11 @@ function Animal(game, x, y, texture) {
 
     this.hitPlayer = function(player) {
         player.addPoint(self.point);
-        self.destroy();
+        var pickUpResult = player.pickUp(self);
+        if(pickUpResult){
+            self.destroy();
+        }
+        
     };
 }
 
@@ -55,7 +59,7 @@ Animal.prototype.update = function() {
     Mobile.prototype.update.call(this);
     if (this.alive) {
         //player animal collision check
-        this.game.physics.arcade.collide(NuhMapHandler.Mobiles.Player, this, this.hitPlayer);
+        this.game.physics.arcade.overlap(NuhMapHandler.Mobiles.Player, this, this.hitPlayer);
 
         //Idle movement implementation
         if (Math.floor(Math.random() * this.movementChance) === 0 && this.lastMoveTime + this.idleMovementRate < this.game.time.now) {

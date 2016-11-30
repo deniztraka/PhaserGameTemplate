@@ -6,6 +6,22 @@ function Player(game, x, y, collisionLayer) {
     this.animations.add('up', [0, 1, 2, 3, 4, 5, 6, 7, 8], 10, true);
     this.animations.add('right', [27, 28, 29, 30, 31, 32, 33, 34], 10, true);
     this.collisionLayer = collisionLayer;
+    this.inventory = new Inventory();
+    this.say = function(message){
+        var bubble = this.game.world.add(new SpeechBubble(this.game, this.x, this.y, null, this, message));
+    }
+    this.pickUp = function(object){
+        var pickUpResult =  this.inventory.addItem(object);
+        var pickUpMessage = "";
+        if(pickUpResult){
+            pickUpMessage = "yay :)";
+        }else{
+            pickUpMessage = "my inventory is full :(";
+        }
+
+        this.say(pickUpMessage);
+        return pickUpResult;
+    }
 
     this.score = 0;
     this.addPoint = function (point) {
