@@ -40,9 +40,11 @@ DGame.Game.prototype = {
 
         NuhMapHandler.Init(this, csvData, this.game.plugins.add(Phaser.Plugin.PathFinderPlugin));
         NuhMapHandler.Builder.FillForest();
+        NuhMapHandler.Builder.PlaceShip();
         NuhMapHandler.Mobiles.CreateAnimals();
         NuhMapHandler.Mobiles.CreatePlayer();
         NuhMapHandler.Builder.InitFlood();
+        NuhMapHandler.Builder.StartFlood();
 
 
         this.physics.startSystem(Phaser.Physics.ARCADE);

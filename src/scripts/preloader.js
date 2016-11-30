@@ -14,6 +14,7 @@ DGame.Preloader.prototype = {
 		this.load.image('tiles', 'assets/img/tiles/EasyTiles.png');
 		this.load.spritesheet('trees', 'assets/img/spritesheets/EasyTiles_Trees_16x32.png', 16, 32);
 		this.load.spritesheet('player', 'assets/img/spritesheets/player32.png', 32, 32);
+		this.load.spritesheet('ship', 'assets/img/spritesheets/ship.png', 48, 48);
 		this.load.image('pig', 'assets/img/tiles/agac3.png', 16, 16);
 		this.load.spritesheet('cat', 'assets/img/spritesheets/animals/cat.png', 16, 16);
 		this.load.spritesheet('chicken', 'assets/img/spritesheets/animals/chicken.png', 16, 16);

@@ -1,4 +1,4 @@
-var NuhMapHandler = (function(my) {
+var NuhMapHandler = (function (my) {
     var map = null;
     var game = null;
     var layer = null;
@@ -19,10 +19,10 @@ var NuhMapHandler = (function(my) {
         }
     };
 
-    my.Init = function(pGame, csvData, pathfinder) {
+    my.Init = function (pGame, csvData, pathfinder) {
         game = pGame;
         pathFinder = pathfinder;
-        
+
         //  Add data to the cache
         game.cache.addTilemap('dynamicMap', null, csvData, Phaser.Tilemap.CSV);
         //  Create our map (the 16x16 is the tile size)
@@ -44,12 +44,12 @@ var NuhMapHandler = (function(my) {
         my.Builder.Init(game, map, layer, allGroups);
         my.Mobiles.Init(game, map, layer, allGroups, pathFinder);
 
-        
+
 
         allGroups.sort();
     };
 
-    my.CountAliveNeighbours = function(x, y, aliveCellIndexArray) {
+    my.CountAliveNeighbours = function (x, y, aliveCellIndexArray) {
         var count = 0;
         for (var i = -1; i < 2; i++) {
             for (var j = -1; j < 2; j++) {
@@ -72,23 +72,25 @@ var NuhMapHandler = (function(my) {
         return count;
     };
 
-    my.Map = function() {
+    my.Map = function () {
         return map;
     }
 
-    my.Update = function() {
+    my.Update = function () {
         allGroups.sort('y', Phaser.Group.SORT_ASCENDING);
     };
 
     return my;
 } (NuhMapHandler || {}));
 
-NuhMapHandler.Builder = (function(my, parent) {
+NuhMapHandler.Builder = (function (my, parent) {
     var map = null;
     var game = null;
     var layer = null;
     var forestGroup = null;
     var floodStartTile = null;
+
+    my.ShipTile = null;
 
     var floodFill = function (x, y, oldVal, newVal) {
         var self = this;
@@ -101,38 +103,44 @@ NuhMapHandler.Builder = (function(my, parent) {
                 oldVal = map.getTile(x, y).index;
             }
 
-            var floorDetailsIndexArray = [3, 4, 5, 6, 7, 8, 9, 10, 11];
+            var shipCheck = false;
+            var floorDetailsIndexArray = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
             if (floorDetailsIndexArray.indexOf(chosenTile.index) !== -1) {
-                map.putTile(newVal, chosenTile.x, chosenTile.y);
+                if (chosenTile.index == 12) {
+                    map.putTile(14, chosenTile.x, chosenTile.y);
+                    shipCheck = true;
+                } else {
+                    map.putTile(newVal, chosenTile.x, chosenTile.y);
+                }
             } else
-            if (chosenTile.index !== oldVal) {
-                return true;
-            }
+                if (chosenTile.index !== oldVal) {
+                    return true;
+                }
 
 
-
-            map.putTile(newVal, chosenTile.x, chosenTile.y);
+            if (!shipCheck)
+                map.putTile(newVal, chosenTile.x, chosenTile.y);
 
             if (x > 0) {
-                floodFill( x - 1, y, oldVal, newVal);
+                floodFill(x - 1, y, oldVal, newVal);
             }
 
             if (y > 0) {
-                floodFill( x, y - 1, oldVal, newVal);
+                floodFill(x, y - 1, oldVal, newVal);
             }
 
             if (x < mapWidth - 1) {
-                floodFill( x + 1, y, oldVal, newVal);
+                floodFill(x + 1, y, oldVal, newVal);
             }
 
             if (y < mapHeight - 1) {
                 floodFill(x, y + 1, oldVal, newVal);
             }
 
-        }, 250);
+        }, 1000);
     };
 
-    my.FillForest = function() {
+    my.FillForest = function () {
         //trees
         for (var i = 0; i < map.width; i++) {
             for (var j = 0; j < map.height; j++) {
@@ -168,7 +176,7 @@ NuhMapHandler.Builder = (function(my, parent) {
         }
     };
 
-    my.InitFlood = function() {
+    my.InitFlood = function () {
         var placeFound = false;
         for (var i = map.width - 1; i >= 0; i--) {
             for (var j = map.height - 1; j >= 0; j--) {
@@ -181,11 +189,41 @@ NuhMapHandler.Builder = (function(my, parent) {
         }
     };
 
-    my.StartFlood = function () {        
+    my.StartFlood = function () {
         floodFill(floodStartTile.x, floodStartTile.y, 0, 2);
     };
 
-    my.Init = function(pGame, pMap, pLayer, pAllGroups) {
+    my.PlaceShip = function () {
+        var placeFound = false;
+        for (var i = 0; i < map.width; i++) {
+            for (var j = 0; j < map.height; j++) {
+                var currTile = map.getTile(i, j);
+                var left = map.getTile(i - 1, j);
+                var topLeft = map.getTile(i - 1, j - 1);
+                var top = map.getTile(i, j - 1);
+                var topRight = map.getTile(i + 1, j - 1);
+                var right = map.getTile(i + 1, j);
+                var bottomRight = map.getTile(i - 1, j + 1);
+                var bottom = map.getTile(i, j + 1);
+                var bottomLeft = map.getTile(i - 1, j + 1);
+                if (currTile.index == 0 && left.index == 0 && topLeft.index == 0 && topRight.index == 0
+                    && right.index == 0 && bottomRight.index == 0 && bottom.index == 0 && bottomLeft.index == 0
+                    && !placeFound) {
+                    placeFound = true;
+                    my.Player = new Ship(game.game, currTile.worldX + currTile.width / 2, currTile.worldY + currTile.height / 2, layer);
+                    my.ShipTile = currTile;
+                    map.putTile(12, i - 1, j);
+                    map.putTile(12, i - 1, j + 1);
+                    map.putTile(12, i, j + 1);
+                    map.putTile(12, i + 1, j);
+                    map.putTile(12, i, j - 1);
+                    map.putTile(12, i + 1, j - 1);
+                }
+            }
+        }
+    }
+
+    my.Init = function (pGame, pMap, pLayer, pAllGroups) {
         map = pMap;
         game = pGame;
         layer = pLayer;
@@ -197,7 +235,7 @@ NuhMapHandler.Builder = (function(my, parent) {
     return my;
 } (NuhMapHandler.Builder || {}, NuhMapHandler));
 
-NuhMapHandler.Mobiles = (function(my, parent) {
+NuhMapHandler.Mobiles = (function (my, parent) {
     var player = null;
     var layer = null;
     var pathFinder = null;
@@ -209,10 +247,11 @@ NuhMapHandler.Mobiles = (function(my, parent) {
 
     my.Player = null;
 
-    var createAnimals = function(animalHiddenLimit) {
+    var createAnimals = function (animalHiddenLimit) {
         var hiddenSpots = [];
+        var shipTile = NuhMapHandler.Builder.ShipTile;
 
-        var shuffle = function() {
+        var shuffle = function () {
             var j, x, i;
             for (i = hiddenSpots.length; i; i--) {
                 j = Math.floor(Math.random() * i);
@@ -230,7 +269,9 @@ NuhMapHandler.Mobiles = (function(my, parent) {
                 if (currentTile.index == 0) {
                     var nbs = parent.CountAliveNeighbours(x, y, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
                     if (nbs <= animalHiddenLimit) {
-                        hiddenSpots.push(currentTile);
+                        if (game.math.distance(currentTile.x, currentTile.y, shipTile.x, shipTile.y) > 10) {
+                            hiddenSpots.push(currentTile);
+                        }
                     }
                 }
             }
@@ -269,7 +310,7 @@ NuhMapHandler.Mobiles = (function(my, parent) {
         }
     };
 
-    my.Init = function(pGame, pMap, pLayer, pAllGroups, pathfinder) {
+    my.Init = function (pGame, pMap, pLayer, pAllGroups, pathfinder) {
         map = pMap;
         game = pGame;
         allGroups = pAllGroups;
@@ -279,24 +320,25 @@ NuhMapHandler.Mobiles = (function(my, parent) {
         allGroups.add(mobilesGroup);
     };
 
-    my.CreateAnimals = function() {
+    my.CreateAnimals = function () {
         createAnimals(3);
     };
 
-    my.CreatePlayer = function() {
-        var placeFound = false;
-        for (var i = 0; i < map.width; i++) {
-            for (var j = 0; j < map.height; j++) {
-                var currTile = map.getTile(i, j);
-                if (currTile.index == 0 && !placeFound) {
-                    placeFound = true;
-                    my.Player = new Player(game.game, currTile.worldX + currTile.width / 2, currTile.worldY + currTile.height / 2, layer);
-                }
-            }
-        }
+    my.CreatePlayer = function () {
+        //var placeFound = false;
+        var playerTile = NuhMapHandler.Builder.ShipTile;
+        // for (var i = 0; i < map.width; i++) {
+        //     for (var j = 0; j < map.height; j++) {
+        //         var currTile = map.getTile(i, j);
+        //         if (currTile.index == 0 && !placeFound) {
+        //             placeFound = true;
+        my.Player = new Player(game.game, playerTile.worldX + playerTile.width / 2, playerTile.worldY + playerTile.height / 2, layer);
+        //         }
+        //     }
+        // }
     };
 
-    my.GetRandomNeighbour = function(mobile) {
+    my.GetRandomNeighbour = function (mobile) {
         var count = 0;
         var tile = map.getTileWorldXY(mobile.x, mobile.y, 16, 16);
         var x = tile.x;
@@ -325,7 +367,7 @@ NuhMapHandler.Mobiles = (function(my, parent) {
         return neighbours[game.rnd.between(0, neighbours.length - 1)];
     }
 
-    my.FindPathTo = function(mobile, destinationTile, callBackFunction) {
+    my.FindPathTo = function (mobile, destinationTile, callBackFunction) {
         var selfMap = map;
         var startTile = map.getTileWorldXY(mobile.x, mobile.y);
         pathFinder.setCallbackFunction(callBackFunction);

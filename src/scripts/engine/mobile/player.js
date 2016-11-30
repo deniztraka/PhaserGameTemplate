@@ -6,7 +6,7 @@ function Player(game, x, y, collisionLayer) {
     this.animations.add('up', [0, 1, 2, 3, 4, 5, 6, 7, 8], 10, true);
     this.animations.add('right', [27, 28, 29, 30, 31, 32, 33, 34], 10, true);
     this.collisionLayer = collisionLayer;
-    this.inventory = new Inventory();
+    this.inventory = new Inventory(2);
     this.say = function(message){
         var bubble = this.game.world.add(new SpeechBubble(this.game, this.x, this.y, null, this, message));
     }
@@ -30,7 +30,7 @@ function Player(game, x, y, collisionLayer) {
 
     game.physics.enable(this, Phaser.Physics.ARCADE);
     game.camera.follow(this);
-    this.body.setSize(15, 15, 8, 16);
+    this.body.setSize(13, 13, 9, 16);
 }
 
 Player.prototype = Object.create(Mobile.prototype);
