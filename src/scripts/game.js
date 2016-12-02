@@ -25,11 +25,62 @@ var nextClick = 0;
 
 
 DGame.Game.prototype = {
+    hede: function () {
+        var map = NuhMapHandler.Map();
+        var playerTile = NuhMapHandler.Mobiles.Player.getTile();
+        var maxDistance = 10;
+
+        function oct(row, col) {
+            for (var row = 1; row < maxDistance; row++) {
+                for (var col = 0; col <= row; col++) {
+                    var x = playerTile.x + col;
+                    var y = playerTile.y - row;
+
+                    map.putTile(100, x, y);
+                }
+            }
+        }
+
+        function transformOctant(row, col, octant) {
+            switch (octant) {
+                case 0: return oct(col, -row);
+                case 1: return oct(row, -col);
+                case 2: return oct(row, col);
+                case 3: return oct(col, row);
+                case 4: return oct(-col, row);
+                case 5: return oct(-row, col);
+                case 6: return oct(-row, -col);
+                case 7: return oct(-col, -row);
+            }
+        }
+
+        //0
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x + col;
+                var y = playerTile.y - row;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //1
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x + row;
+                var y = playerTile.y - col;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+    },
+
     create: function () {
 
         MapHandler.Init({
             width: 64,
-            height: 40,
+            height: 48,
             chanceToStartAlive: 0.4,
             birthLimit: 4,
             deathLimit: 3,
@@ -49,10 +100,28 @@ DGame.Game.prototype = {
 
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
-        // pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-        // pathfinder.setGrid(NuhMapHandler.Map().layers[0].data, [0, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
-        //NuhMapHandler.Builder.StartFlood();
+
+        var emitter = this.game.add.emitter(this.game.world.centerX, -450, 400);
+
+        emitter.width = this.game.world.width;
+        emitter.angle = 30; // uncomment to set an angle for the rain.
+
+        emitter.makeParticles('rain');
+
+        emitter.minParticleScale = 0.05;
+        emitter.maxParticleScale = 0.25;
+
+        emitter.setYSpeed(300, 600);
+        emitter.setXSpeed(-5, 5);
+        //emitter.lifespan = 500;
+
+        emitter.minRotation = 0;
+        emitter.maxRotation = 0;
+
+        emitter.start(false, 1600, 5, 0);
+
+
     },
 
     update: function () {
@@ -60,13 +129,14 @@ DGame.Game.prototype = {
         if (this.input.activePointer.isDown) {
             if (this.time.now > nextClick) {
                 nextClick = this.time.now + clickRate;
-                NuhMapHandler.Builder.StartFlood();
+                this.hede();
             }
         }
 
         NuhMapHandler.Update();
     },
     render: function () {
+        this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
         //this.game.debug.spriteBounds(NuhMapHandler.Mobiles.Player);
         // for (var y = 0; y < world[0].length; y++) {
         //     for (var x = 0; x < world.length; x++) {
