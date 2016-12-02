@@ -74,6 +74,66 @@ DGame.Game.prototype = {
             }
         }
 
+        //2
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x + row;
+                var y = playerTile.y + col;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //3
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x + col;
+                var y = playerTile.y + row;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //4
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x - col;
+                var y = playerTile.y + row;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //5
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x - row;
+                var y = playerTile.y + col;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //6
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x - row;
+                var y = playerTile.y - col;
+
+                map.putTile(100, x, y);
+            }
+        }
+
+        //7
+        for (var row = 1; row < maxDistance; row++) {
+            for (var col = 0; col <= row; col++) {
+                var x = playerTile.x - col;
+                var y = playerTile.y - row;
+
+                map.putTile(100, x, y);
+            }
+        }
+
     },
 
     create: function () {
