@@ -59,6 +59,8 @@ Player.prototype.update = function () {
             this.animations.stop();
         }
     }
+
+    refreshVisibility(this.getTile());
 };
 
 Player.prototype.render = function () {

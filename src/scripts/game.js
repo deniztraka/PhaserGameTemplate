@@ -53,6 +53,11 @@ DGame.Game.prototype = {
                 case 7: return oct(-col, -row);
             }
         }
+            transformOctant(1,1,0);
+            transformOctant(1,1,1);
+
+
+        return;
 
         //0
         for (var row = 1; row < maxDistance; row++) {
@@ -157,6 +162,8 @@ DGame.Game.prototype = {
         NuhMapHandler.Builder.InitFlood();
         NuhMapHandler.Builder.StartFlood();
 
+        fovMap = NuhMapHandler.Map();
+
 
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -189,7 +196,7 @@ DGame.Game.prototype = {
         if (this.input.activePointer.isDown) {
             if (this.time.now > nextClick) {
                 nextClick = this.time.now + clickRate;
-                this.hede();
+                //this.hede();
             }
         }
 
