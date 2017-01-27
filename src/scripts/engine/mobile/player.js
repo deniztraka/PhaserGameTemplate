@@ -60,7 +60,7 @@ Player.prototype.update = function () {
         }
     }
 
-    refreshVisibility(this.getTile());
+    //refreshVisibility(this.getTile());
 };
 
 Player.prototype.render = function () {

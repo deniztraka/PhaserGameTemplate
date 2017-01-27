@@ -144,9 +144,9 @@ DGame.Game.prototype = {
     create: function () {
 
         MapHandler.Init({
-            width: 64,
-            height: 48,
-            chanceToStartAlive: 0.4,
+            width: 20,
+            height: 20,
+            chanceToStartAlive: 0.25,
             birthLimit: 4,
             deathLimit: 3,
             numberOfSteps: 3,
@@ -159,34 +159,14 @@ DGame.Game.prototype = {
         NuhMapHandler.Builder.PlaceShip();
         NuhMapHandler.Mobiles.CreateAnimals();
         NuhMapHandler.Mobiles.CreatePlayer();
-        NuhMapHandler.Builder.InitFlood();
-        NuhMapHandler.Builder.StartFlood();
+        //NuhMapHandler.Builder.InitFlood();
+        //NuhMapHandler.Builder.StartFlood();
 
-        fovMap = NuhMapHandler.Map();
+       
 
 
         this.physics.startSystem(Phaser.Physics.ARCADE);
-
-
-
-        var emitter = this.game.add.emitter(this.game.world.centerX, -450, 400);
-
-        emitter.width = this.game.world.width;
-        emitter.angle = 30; // uncomment to set an angle for the rain.
-
-        emitter.makeParticles('rain');
-
-        emitter.minParticleScale = 0.05;
-        emitter.maxParticleScale = 0.25;
-
-        emitter.setYSpeed(300, 600);
-        emitter.setXSpeed(-5, 5);
-        //emitter.lifespan = 500;
-
-        emitter.minRotation = 0;
-        emitter.maxRotation = 0;
-
-        emitter.start(false, 1600, 5, 0);
+       
 
 
     },
